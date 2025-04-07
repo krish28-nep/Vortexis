@@ -1,26 +1,64 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+
+@theme {
+  --color-primary-50: #f6f6f6;
+  --color-primary-100: #e7e7e7;
+  --color-primary-200: #d1d1d1;
+  --color-primary-300: #b0b0b0;
+  --color-primary-400: #888888;
+  --color-primary-500: #6d6d6d;
+  --color-primary-600: #5d5d5d;
+  --color-primary-700: #4f4f4f;
+  --color-primary-800: #454545;
+  --color-primary-900: #333333;
+  --color-primary-950: #262626;
+
+  --color-secondary-50: #eff5ff;
+  --color-secondary-100: #dbe8fe;
+  --color-secondary-200: #bfd7fe;
+  --color-secondary-300: #93bbfd;
+  --color-secondary-400: #609afa;
+  --color-secondary-500: #3b82f6;
+  --color-secondary-600: #2570eb;
+  --color-secondary-700: #1d64d8;
+  --color-secondary-800: #1e55af;
+  --color-secondary-900: #1e478a;
+  --color-secondary-950: #172e54;
+
+  --color-tertiary-50: #f7f4ef;
+  --color-tertiary-100: #ebe3d6;
+  --color-tertiary-200: #d9c8af;
+  --color-tertiary-300: #c2a682;
+  --color-tertiary-400: #b0895f;
+  --color-tertiary-500: #a17751;
+  --color-tertiary-600: #8a5f44;
+  --color-tertiary-700: #6f4a39;
+  --color-tertiary-800: #5f3f34;
+  --color-tertiary-900: #4e342e;
+  --color-tertiary-950: #2f1d19;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@body {
+  @apply bg-primary-50 text-primary-900;
 }
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer components{
+  .heading-admin{
+    @apply text-3xl font-bold text-secondary-900;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  .heading{
+    @apply text-3xl font-bold text-tertiary-900;
+  }
+  .subHeading-admin{
+    @apply text-3xl font-bold text-secondary-900;
+  }
+  .subHeading{
+    @apply text-3xl font-bold text-tertiary-900;
+  }
+  .subHeading-admin2{
+    @apply text-3xl font-bold text-secondary-900;
+  }
+  .subHeading2{
+    @apply text-3xl font-bold text-tertiary-900;
+  }
 }
