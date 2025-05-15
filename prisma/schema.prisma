@@ -1,4 +1,4 @@
- // This is your Prisma schema file,
+// This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
@@ -17,25 +17,93 @@ model User {
   id           Int        @id @default(autoincrement())
   name         String
   email        String     @unique
+  avatarUrl    String?
   passwordHash String
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
-  UserRole     UserRole[]
+  role         String //enum ("admin, customer")
+  Cart         Cart[]
+  Order        Order[]
+  Wishlist     Wishlist[]
 }
 
-model Role {
-  id        Int        @id @default(autoincrement())
-  name      String     @unique
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  UserRole  UserRole[]
+model Product {
+  id              Int               @id @default(autoincrement())
+  name            String
+  description     String?
+  price           Decimal           @db.Decimal(10, 2)
+  discountPercent Float
+  stock           Int               @default(0)
+  imageUrl        String
+  rating          Float             @default(0)
+  isFlashSale     Boolean           @default(false)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  CategoryProduct CategoryProduct[]
+  CartItem        CartItem[]
+  OrderItem       OrderItem[]
+  Wishlist        Wishlist[]
 }
 
-model UserRole {
-  userId Int  @unique
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  roleId Int  @unique
-  role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+model Category {
+  id              Int               @id @default(autoincrement())
+  name            String
+  CategoryProduct CategoryProduct[]
+}
 
-  @@id([userId, roleId])
+model CategoryProduct {
+  id         Int      @id @default(autoincrement())
+  productId  Int
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, categoryId])
+}
+
+model Wishlist {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+}
+
+model Cart {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+
+  CartItem CartItem[]
+}
+
+model CartItem {
+  id        Int     @id @default(autoincrement())
+  cart      Cart    @relation(fields: [cartId], references: [id])
+  cartId    Int
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+  quantity  Int
+}
+
+model Order {
+  id        Int         @id @default(autoincrement())
+  user      User        @relation(fields: [userId], references: [id])
+  userId    Int
+  createdAt DateTime    @default(now())
+  OrderItem OrderItem[]
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  order     Order   @relation(fields: [orderId], references: [id])
+  orderId   Int
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+  quantity  Int
+  price     Decimal @db.Decimal(10, 2)
 }

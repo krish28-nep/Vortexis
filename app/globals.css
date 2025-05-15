@@ -44,10 +44,10 @@
 }
 @layer components{
   .heading-admin{
-    @apply text-3xl font-bold text-secondary-900;
+    @apply text-5xl font-bold text-secondary-900;
   }
   .heading{
-    @apply text-3xl font-bold text-tertiary-900;
+    @apply text-5xl font-bold text-tertiary-900;
   }
   .subHeading-admin{
     @apply text-3xl font-bold text-secondary-900;
