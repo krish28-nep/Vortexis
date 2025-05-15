@@ -1,8 +1,131 @@
 "use client";
+
+import { MoveRight } from "lucide-react";
+import { useState } from "react";
+
 const HomePage = () => {
+  const [option, setOption] = useState(1);
+  const categoryList = [
+    "Woman’s Fashion",
+    "Men’s Fashion",
+    "Electronics",
+    "Home & Lifestyle",
+    "Medicine",
+    "Sports & Outdoor",
+    "Baby’s & Toys",
+    "Groceries & Pets",
+    "Health & Beauty",
+  ];
+
+  let heroToRender;
+  switch (option) {
+    case 1:
+      heroToRender = {
+        logo: "/appleLogo.png",
+        title: "iPhone 14 Series",
+        offer: `Up to 10% <br />off Voucher`,
+        hero_endFrame: "hero_endFrame_14.png",
+      };
+      break;
+
+    case 2:
+      heroToRender = {
+        logo: "/xboxLogo.png",
+        title: "Xbox New Series",
+        offer: `Play More, Win More <br />Exclusive Deals`,
+        hero_endFrame: "xboxHero.png",
+      };
+      break;
+
+    case 3:
+      heroToRender = {
+        logo: "/ps5Logo.png",
+        title: "PlayStation 5",
+        offer: `Exclusive Bundles <br />Now Available`,
+        hero_endFrame: "ps5Hero.png",
+      };
+      break;
+
+    case 4:
+      heroToRender = {
+        logo: "/rogLogo.png",
+        title: "ROG Phone 9",
+        offer: `Game Beast Unleashed <br />Get Gaming Perks`,
+        hero_endFrame: "rogHero.png",
+      };
+      break;
+
+    case 5:
+      heroToRender = {
+        logo: "/oneplusLogo.png",
+        title: "OnePlus 13",
+        offer: `Launch Offer <br />Flat ₹3000 off`,
+        hero_endFrame: "oneplusHero.png",
+      };
+      break;
+
+    default:
+      heroToRender = {};
+  }
+
   return (
-    <div>
-      <h1>Welcome to the root Page</h1>
+    <div className="mx-36 my-4">
+      <div className="flex justify-between">
+        <div className="flex flex-col gap-3 text-lg ">
+          {categoryList.map((category, index) => (
+            <span key={index}>{category}</span>
+          ))}
+        </div>
+        <div className="w-[75%] max-h-96 min-h-96 pt-8 relative  text-primary-50 flex px-24 border-2 bg-black justify-between">
+          <div className="flex flex-col gap-4">
+            <span className="flex items-center gap-6">
+              <img className="w-10 h-10" src={heroToRender.logo} />
+              <h1>{heroToRender.title}</h1>
+            </span>
+            <span
+              className="text-5xl font-bold [line-height:4rem]"
+              dangerouslySetInnerHTML={{ __html: heroToRender.offer || "" }}
+            />
+            <button className="cursor-pointer text-xl flex items-center gap-2">
+              <span className="border-b-2 py-1">Shop now</span>
+              <MoveRight />
+            </button>
+          </div>
+          <img className="w-4/6 h-80" src={heroToRender.hero_endFrame} />
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-4">
+            <button
+              onClick={() => setOption(1)}
+              className={`rounded-full bg-primary-500 h-4 w-4 ${
+                option === 1 ? "bg-secondary-400 border-2" : ""
+              }`}
+            ></button>
+            <button
+              onClick={() => setOption(2)}
+              className={`rounded-full bg-primary-500 h-4 w-4 ${
+                option === 2 ? "bg-secondary-400 border-2" : ""
+              }`}
+            ></button>
+            <button
+              onClick={() => setOption(3)}
+              className={`rounded-full bg-primary-500 h-4 w-4 ${
+                option === 3 ? "bg-secondary-400 border-2" : ""
+              }`}
+            ></button>{" "}
+            <button
+              onClick={() => setOption(4)}
+              className={`rounded-full bg-primary-500 h-4 w-4 ${
+                option === 4 ? "bg-secondary-400 border-2" : ""
+              }`}
+            ></button>
+            <button
+              onClick={() => setOption(5)}
+              className={`rounded-full bg-primary-500 h-4 w-4 ${
+                option === 5 ? "bg-secondary-400 border-2" : ""
+              }`}
+            ></button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

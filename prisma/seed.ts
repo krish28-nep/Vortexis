@@ -3,27 +3,7 @@ import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
-const seedRoles = async () => {
-    const roles = [{ name: "super_admin" }, { name: "admin" }, { name: "user" }];
-    for (const role of roles) {
-        await prisma.role.upsert({
-            where: { name: role.name },
-            update: {},
-            create: role,
-        });
-    }
-    console.log("✅ Roles seeded successfully.");
-};
-
 const seedUser = async () => {
-    const superAdminRole = await prisma.role.findUnique({
-        where: { name: "super_admin" },
-    });
-
-    if (!superAdminRole) {
-        throw new Error("super_admin role not found.");
-    }
-
     const hash = await bcrypt.hash("password", 10);
 
     const user = await prisma.user.upsert({
@@ -33,15 +13,7 @@ const seedUser = async () => {
             name: "superAdmin",
             email: "superadmin@gmail.com",
             passwordHash: hash,
-        },
-    });
-
-    await prisma.userRole.upsert({
-        where: { userId_roleId: { userId: user.id, roleId: superAdminRole.id } },
-        update: {},
-        create: {
-            userId: user.id,
-            roleId: superAdminRole.id,
+            role: "admin"
         },
     });
 
@@ -49,7 +21,6 @@ const seedUser = async () => {
 };
 
 const main = async () => {
-    await seedRoles();
     await seedUser();
 };
 
