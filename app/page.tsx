@@ -1,21 +1,26 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 import { MoveRight } from "lucide-react";
 import { useState } from "react";
 
+type Category = {
+  name: string;
+};
+
 const HomePage = () => {
   const [option, setOption] = useState(1);
-  const categoryList = [
-    "Woman’s Fashion",
-    "Men’s Fashion",
-    "Electronics",
-    "Home & Lifestyle",
-    "Medicine",
-    "Sports & Outdoor",
-    "Baby’s & Toys",
-    "Groceries & Pets",
-    "Health & Beauty",
-  ];
+  const fetchCategories = async () => {
+    const { data } = await axios.get("http://localhost:5000/api/categories");
+    return data;
+  };
+
+  const { data: categoryData, isLoading } = useQuery({
+    queryKey: ["categories"],
+    queryFn: fetchCategories,
+  });
+   const categoryList: Category[] = categoryData?.categories || [];
 
   let heroToRender;
   switch (option) {
@@ -73,7 +78,7 @@ const HomePage = () => {
       <div className="flex justify-between">
         <div className="flex flex-col gap-3 text-lg ">
           {categoryList.map((category, index) => (
-            <span key={index}>{category}</span>
+            <span key={index}>{category.name}</span>
           ))}
         </div>
         <div className="w-[75%] max-h-96 min-h-96 pt-8 relative  text-primary-50 flex px-24 border-2 bg-black justify-between">
