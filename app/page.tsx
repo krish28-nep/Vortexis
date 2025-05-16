@@ -38,19 +38,20 @@ const HomePage = () => {
       img: "hero_endFrame_141.png",
     },
   ];
-  
+
   const [option, setOption] = useState(1);
   const fetchCategories = async () => {
-    const { data } = await axios.get("http://localhost:4000/api/categories");
+    const { data } = await axios.get(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/categories`
+    );
     return data;
   };
-
 
   const { data: categoryData, isLoading } = useQuery({
     queryKey: ["categories"],
     queryFn: fetchCategories,
   });
-   const categoryList: Category[] = categoryData?.categories || [];
+  const categoryList: Category[] = categoryData?.categories || [];
 
   let heroToRender;
   switch (option) {
@@ -162,11 +163,15 @@ const HomePage = () => {
         </div>
       </div>
       <div className="flex gap-10">
-        {products.map((product:any,index:number)=>
-        <ProductCart1 key={index} name={product.name} img={product.img} price={product.price}/>
-        )}
+        {products.map((product: any, index: number) => (
+          <ProductCart1
+            key={index}
+            name={product.name}
+            img={product.img}
+            price={product.price}
+          />
+        ))}
       </div>
-
     </div>
   );
 };
