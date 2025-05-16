@@ -1,5 +1,6 @@
 "use client";
 
+import ProductCart1 from "@/components/ProductCart1";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { MoveRight } from "lucide-react";
@@ -10,11 +11,40 @@ type Category = {
 };
 
 const HomePage = () => {
+  const products = [
+    {
+      name: "OnePlus",
+      price: 699,
+      img: "oneplusHero.png",
+    },
+    {
+      name: "PlayStation 5",
+      price: 499,
+      img: "ps5Hero.png",
+    },
+    {
+      name: "ROG Gaming",
+      price: 1399,
+      img: "rogHero.png",
+    },
+    {
+      name: "Xbox Series X",
+      price: 499,
+      img: "xboxHero.png",
+    },
+    {
+      name: "Iphone 14",
+      price: 899,
+      img: "hero_endFrame_141.png",
+    },
+  ];
+  
   const [option, setOption] = useState(1);
   const fetchCategories = async () => {
-    const { data } = await axios.get("http://localhost:5000/api/categories");
+    const { data } = await axios.get("http://localhost:4000/api/categories");
     return data;
   };
+
 
   const { data: categoryData, isLoading } = useQuery({
     queryKey: ["categories"],
@@ -74,14 +104,14 @@ const HomePage = () => {
   }
 
   return (
-    <div className="mx-36 my-4">
+    <div className="mx-36 my-4 flex flex-col gap-12">
       <div className="flex justify-between">
         <div className="flex flex-col gap-3 text-lg ">
           {categoryList.map((category, index) => (
             <span key={index}>{category.name}</span>
           ))}
         </div>
-        <div className="w-[75%] max-h-96 min-h-96 pt-8 relative  text-primary-50 flex px-24 border-2 bg-black justify-between">
+        <div className="w-[75%] max-h-96 min-h-96 pt-8 relative  text-primary-50 flex pl-24 border-2 bg-black justify-between">
           <div className="flex flex-col gap-4">
             <span className="flex items-center gap-6">
               <img className="w-10 h-10" src={heroToRender.logo} />
@@ -96,7 +126,7 @@ const HomePage = () => {
               <MoveRight />
             </button>
           </div>
-          <img className="w-4/6 h-80" src={heroToRender.hero_endFrame} />
+          <img className="w-4/7 h-80" src={heroToRender.hero_endFrame} />
           <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-4">
             <button
               onClick={() => setOption(1)}
@@ -131,6 +161,12 @@ const HomePage = () => {
           </div>
         </div>
       </div>
+      <div className="flex gap-10">
+        {products.map((product:any,index:number)=>
+        <ProductCart1 key={index} name={product.name} img={product.img} price={product.price}/>
+        )}
+      </div>
+
     </div>
   );
 };
