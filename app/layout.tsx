@@ -1,10 +1,12 @@
-"use client"
+"use client";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { usePathname } from "next/navigation";
 import ReactQueryProvider from "@/utils/providers/ReactQueryProvider";
 import EndUserLayout from "@/components/layouts/EndUserLayout";
+import { Provider } from "react-redux";
+import { store } from "@/redux/store";
 
 // export const metadata: Metadata = {
 //   title: "Create Next App",
@@ -20,7 +22,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -33,15 +34,17 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ReactQueryProvider>
-          <div>
-            {isAdminRoute ? (
-              <>{children}</>
-            ) : (
-              <EndUserLayout>{children}</EndUserLayout>
-            )}
-          </div>
-        </ReactQueryProvider>
+        <Provider store={store}>
+          <ReactQueryProvider>
+            <div>
+              {isAdminRoute ? (
+                <>{children}</>
+              ) : (
+                <EndUserLayout>{children}</EndUserLayout>
+              )}
+            </div>
+          </ReactQueryProvider>
+        </Provider>
       </body>
     </html>
   );
