@@ -105,7 +105,7 @@ const HomePage = () => {
   }
 
   return (
-    <div className="mx-36 my-4 flex flex-col gap-12">
+    <div className="mx-36 my-8 flex flex-col gap-20">
       <div className="flex justify-between">
         <div className="flex flex-col gap-3 text-lg ">
           {categoryList.map((category, index) => (
