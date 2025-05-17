@@ -13,7 +13,7 @@ type Product = {
 const ProductCart1: React.FC<Product> = ({ name, price, img }) => {
   return (
     <div className="min-w-64 max-w-64">
-      <div className="relative flex w-full bg-gray-200 py-6">
+      <div className="relative flex w-full flex-col bg-gray-200 pt-10 group transition-all transform ease-in-out duration-300">
         <div className="absolute top-0 left-0 text-neutral-100 bg-red-400 p-1">
           -40%
         </div>
@@ -26,6 +26,9 @@ const ProductCart1: React.FC<Product> = ({ name, price, img }) => {
           </div>
         </div>
         <img className="object-cover h-40" src={img} alt={name} />
+        <div className="bg-black text-neutral-100 py-1 flex justify-center scale-0 group-hover:scale-100 transform transition-all ease-in-out duration-300 cursor-pointer">
+          Add To Cart
+        </div>
       </div>
       <div className="px-4 pb-6">
         <h2 className="font-semibold">{name}</h2>

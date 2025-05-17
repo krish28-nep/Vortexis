@@ -37,6 +37,11 @@ const HomePage = () => {
       price: 899,
       img: "hero_endFrame_141.png",
     },
+    {
+      name: "Iphone 14",
+      price: 899,
+      img: "hero_endFrame_141.png",
+    },
   ];
 
   const [option, setOption] = useState(1);
@@ -162,7 +167,7 @@ const HomePage = () => {
           </div>
         </div>
       </div>
-      <div className="flex gap-10">
+      <div className="flex gap-10 overflow-auto -mr-8">
         {products.map((product: any, index: number) => (
           <ProductCart1
             key={index}
