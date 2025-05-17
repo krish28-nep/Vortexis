@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import { IoIosArrowRoundBack, IoIosArrowRoundForward } from 'react-icons/io';
 import ProductCart1 from './ProductCart1';
 
@@ -8,6 +8,22 @@ type ProductRailsProps = {
 }
 
 const ProductRail:React.FC<ProductRailsProps> = ({title, subtitle}) => {
+   const ScrollRef = useRef<HTMLDivElement>(null);
+
+   const scrollRight = () =>{
+    if (ScrollRef.current) {
+      ScrollRef.current.scrollLeft += 350;
+      ScrollRef.current.style.scrollBehavior = 'smooth';
+    }
+   }
+   const scrollLeft = () =>{
+    if (ScrollRef.current) {
+      ScrollRef.current.scrollLeft -= 350;
+      ScrollRef.current.style.scrollBehavior = "smooth";
+
+    }
+
+   }
     const products = [
       {
         name: "OnePlus",
@@ -60,34 +76,42 @@ const ProductRail:React.FC<ProductRailsProps> = ({title, subtitle}) => {
       <div className="flex justify-between">
         <div className="text-4xl py-4 font-semibold flex gap-35">
           <h1 className="">{subtitle}</h1>
-          {subtitle=="Flash Sales" && <div className="flex gap-4">
-            <div>
-              <h1 className="time-heading">Days</h1>
-              <h1>03</h1>
+          {subtitle == "Flash Sales" && (
+            <div className="flex gap-4">
+              <div>
+                <h1 className="time-heading">Days</h1>
+                <h1>03</h1>
+              </div>
+              <div className="mt-6 text-red-400">:</div>
+              <div>
+                <h1 className="time-heading">Hours</h1>
+                <h1>03</h1>
+              </div>
+              <div className="mt-6 text-red-400">:</div>
+              <div>
+                <h1 className="time-heading">Minutes</h1>
+                <h1>33</h1>
+              </div>
+              <div className="mt-6 text-red-400">:</div>
+              <div>
+                <h1 className="time-heading">Seconds</h1>
+                <h1>33</h1>
+              </div>
             </div>
-            <div className="mt-6 text-red-400">:</div>
-            <div>
-              <h1 className="time-heading">Hours</h1>
-              <h1>03</h1>
-            </div>
-            <div className="mt-6 text-red-400">:</div>
-            <div>
-              <h1 className="time-heading">Minutes</h1>
-              <h1>33</h1>
-            </div>
-            <div className="mt-6 text-red-400">:</div>
-            <div>
-              <h1 className="time-heading">Seconds</h1>
-              <h1>33</h1>
-            </div>
-          </div>}
+          )}
         </div>
         <div className="flex text-6xl gap-4 font-normal text-neutral-500 cursor-pointer">
-          <IoIosArrowRoundBack className="p-2 bg-neutral-300 rounded-full" />
-          <IoIosArrowRoundForward className="p-2 bg-neutral-300 rounded-full" />
+          <IoIosArrowRoundBack
+            className="p-2 bg-neutral-300 rounded-full hover:bg-neutral-200 active:scale-130 transition-all ease-in-out duration-300"
+            onClick={scrollLeft}
+          />
+          <IoIosArrowRoundForward
+            className="p-2 bg-neutral-300 rounded-full hover:bg-neutral-200 active:scale-130 transition-all ease-in-out duration-300"
+            onClick={scrollRight}
+          />
         </div>
       </div>
-      <div className="flex gap-10 overflow-auto scrollbar-hide">
+      <div ref={ScrollRef} className="flex gap-10 overflow-auto scrollbar-hide">
         {products.map((product: any, index: number) => (
           <ProductCart1
             key={index}

@@ -1,19 +1,42 @@
 "use client";
 
+import FeatureCard from "@/components/FeatureCard";
 import NewArrivalCart from "@/components/NewArrivalCart";
 import ProductRail from "@/components/ProductRail";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { MoveRight } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Category = {
   name: string;
 };
 
 const HomePage = () => {
-
   const [option, setOption] = useState(1);
+
+  const [slideClass, setSlideClass] = useState("slide-in");
+
+  const handleOptionChange = (newOption: number) => {
+    if (newOption === option) return; // prevent unnecessary animation
+    setSlideClass("slide-out");
+
+    setTimeout(() => {
+      setOption(newOption);
+      setSlideClass("slide-in");
+    }, 1000);
+  };
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSlideClass("slide-out");
+      setTimeout(() => {
+        setOption((prev) => (prev % 5) + 1);
+        setSlideClass("slide-in");
+      }, 300);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
   const fetchCategories = async () => {
     const { data } = await axios.get(
       `${process.env.NEXT_PUBLIC_SERVER_URL}/api/categories`
@@ -34,7 +57,7 @@ const HomePage = () => {
         logo: "/appleLogo.png",
         title: "iPhone 14 Series",
         offer: `Up to 10% <br />off Voucher`,
-        hero_endFrame: "hero_endFrame_14.png",
+        hero_endFrame: "hero_endFrame_141.png",
       };
       break;
 
@@ -86,50 +109,57 @@ const HomePage = () => {
             <span key={index}>{category.name}</span>
           ))}
         </div>
-        <div className="w-[75%] max-h-96 min-h-96 pt-8 relative  text-primary-50 flex pl-24 border-2 bg-black justify-between">
-          <div className="flex flex-col gap-4">
-            <span className="flex items-center gap-6">
-              <img className="w-10 h-10" src={heroToRender.logo} />
-              <h1>{heroToRender.title}</h1>
-            </span>
-            <span
-              className="text-5xl font-bold [line-height:4rem]"
-              dangerouslySetInnerHTML={{ __html: heroToRender.offer || "" }}
+        <div
+          className={`w-[75%] max-h-96 min-h-96 pt-8 relative text-primary-50 flex pl-24 border-2 bg-black justify-between`}
+        >
+          <div className={`${slideClass} flex justify-between w-full`}>
+            <div className="flex flex-col gap-4 ">
+              <span className="flex items-center gap-6">
+                <img className="w-10 h-10" src={heroToRender.logo} />
+                <h1>{heroToRender.title}</h1>
+              </span>
+              <span
+                className="text-5xl font-bold [line-height:4rem]"
+                dangerouslySetInnerHTML={{ __html: heroToRender.offer || "" }}
+              />
+              <button className="cursor-pointer text-xl flex items-center gap-2">
+                <span className="border-b-2 py-1">Shop now</span>
+                <MoveRight />
+              </button>
+            </div>
+            <img
+              className="w-4/7 h-80 hover:scale-130 transition-all ease-in-out duration-300"
+              src={heroToRender.hero_endFrame}
             />
-            <button className="cursor-pointer text-xl flex items-center gap-2">
-              <span className="border-b-2 py-1">Shop now</span>
-              <MoveRight />
-            </button>
           </div>
-          <img className="w-4/7 h-80" src={heroToRender.hero_endFrame} />
           <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-4">
             <button
-              onClick={() => setOption(1)}
-              className={`rounded-full bg-primary-500 h-4 w-4 ${
+              onClick={() => handleOptionChange(1)}
+              className={`rounded-full bg-primary-500 h-4 w-4 hover:scale-150 transition-all ease-in-out duration-300 ${
                 option === 1 ? "bg-secondary-400 border-2" : ""
               }`}
             ></button>
             <button
-              onClick={() => setOption(2)}
-              className={`rounded-full bg-primary-500 h-4 w-4 ${
+              onClick={() => handleOptionChange(2)}
+              className={`rounded-full bg-primary-500 h-4 w-4 hover:scale-150 transition-all ease-in-out duration-300 ${
                 option === 2 ? "bg-secondary-400 border-2" : ""
               }`}
             ></button>
             <button
-              onClick={() => setOption(3)}
-              className={`rounded-full bg-primary-500 h-4 w-4 ${
+              onClick={() => handleOptionChange(3)}
+              className={`rounded-full bg-primary-500 h-4 w-4 hover:scale-150 transition-all ease-in-out duration-300 ${
                 option === 3 ? "bg-secondary-400 border-2" : ""
               }`}
             ></button>{" "}
             <button
-              onClick={() => setOption(4)}
-              className={`rounded-full bg-primary-500 h-4 w-4 ${
+              onClick={() => handleOptionChange(4)}
+              className={`rounded-full bg-primary-500 h-4 w-4 hover:scale-150 transition-all ease-in-out duration-300 ${
                 option === 4 ? "bg-secondary-400 border-2" : ""
               }`}
             ></button>
             <button
-              onClick={() => setOption(5)}
-              className={`rounded-full bg-primary-500 h-4 w-4 ${
+              onClick={() => handleOptionChange(5)}
+              className={`rounded-full bg-primary-500 h-4 w-4 hover:scale-150 transition-all ease-in-out duration-300 ${
                 option === 5 ? "bg-secondary-400 border-2" : ""
               }`}
             ></button>
@@ -138,7 +168,8 @@ const HomePage = () => {
       </div>
       <ProductRail title="Today's" subtitle="Flash Sales" />
       <ProductRail title="This Month" subtitle="Best Selling Products" />
-      <NewArrivalCart/>
+      <NewArrivalCart />
+      <FeatureCard />
     </div>
   );
 };

@@ -7,8 +7,8 @@ type NewArrivalProductCartProps = {
 }
 const NewArrivalProductCart:React.FC<NewArrivalProductCartProps> = ({title, description ,image}) => {
   return (
-    <div className="relative bg-black flex justify-center p-4">
-      <img className="object-cover" src={image} />
+    <div className="relative bg-black flex justify-center p-10 py-10">
+      <img className="object-cover scale-80 hover:scale-110 transition-all ease-in-out duration-300" src={image} />
       <div className="absolute bottom-0 p-8 left-0">
         <h1 className="text-2xl font-semibold">{title}</h1>
         <div dangerouslySetInnerHTML={{__html:description}}/>
