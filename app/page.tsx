@@ -1,6 +1,7 @@
 "use client";
 
-import ProductCart1 from "@/components/ProductCart1";
+import NewArrivalCart from "@/components/NewArrivalCart";
+import ProductRail from "@/components/ProductRail";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { MoveRight } from "lucide-react";
@@ -11,38 +12,6 @@ type Category = {
 };
 
 const HomePage = () => {
-  const products = [
-    {
-      name: "OnePlus",
-      price: 699,
-      img: "oneplusHero.png",
-    },
-    {
-      name: "PlayStation 5",
-      price: 499,
-      img: "ps5Hero.png",
-    },
-    {
-      name: "ROG Gaming",
-      price: 1399,
-      img: "rogHero.png",
-    },
-    {
-      name: "Xbox Series X",
-      price: 499,
-      img: "xboxHero.png",
-    },
-    {
-      name: "Iphone 14",
-      price: 899,
-      img: "hero_endFrame_141.png",
-    },
-    {
-      name: "Iphone 14",
-      price: 899,
-      img: "hero_endFrame_141.png",
-    },
-  ];
 
   const [option, setOption] = useState(1);
   const fetchCategories = async () => {
@@ -167,16 +136,9 @@ const HomePage = () => {
           </div>
         </div>
       </div>
-      <div className="flex gap-10 overflow-auto -mr-8">
-        {products.map((product: any, index: number) => (
-          <ProductCart1
-            key={index}
-            name={product.name}
-            img={product.img}
-            price={product.price}
-          />
-        ))}
-      </div>
+      <ProductRail title="Today's" subtitle="Flash Sales" />
+      <ProductRail title="This Month" subtitle="Best Selling Products" />
+      <NewArrivalCart/>
     </div>
   );
 };
