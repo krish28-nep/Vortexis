@@ -1,73 +1,113 @@
-import React, { useRef } from 'react'
-import { IoIosArrowRoundBack, IoIosArrowRoundForward } from 'react-icons/io';
-import ProductCart1 from './ProductCart1';
+import React, { useEffect, useRef, useState } from "react";
+import { IoIosArrowRoundBack, IoIosArrowRoundForward } from "react-icons/io";
+import ProductCart1 from "./ProductCart1";
 
 type ProductRailsProps = {
-    title:string;
-    subtitle: string
-}
+  title: string;
+  subtitle: string;
+  dbTimeString: string
+};
 
-const ProductRail:React.FC<ProductRailsProps> = ({title, subtitle}) => {
-   const ScrollRef = useRef<HTMLDivElement>(null);
+const ProductRail: React.FC<ProductRailsProps> = ({
+  title,
+  subtitle,
+  dbTimeString
+}) => {
+  const targetTime = new Date(dbTimeString).getTime();
 
-   const scrollRight = () =>{
+  const [isEnded, setIsEnded] = useState(false);
+  const [remainingTime, setRemainingTime] = useState(targetTime - Date.now());
+
+  const intervalRef = useRef<NodeJS.Timeout | number>(0);
+
+  useEffect(() => {
+    if (!isEnded) {
+      intervalRef.current = setInterval(() => {
+        const timeLeft = targetTime - Date.now();
+
+        if (timeLeft <= 0) {
+          clearInterval(intervalRef.current);
+          setRemainingTime(0);
+          setIsEnded(true);
+        } else {
+          setRemainingTime(timeLeft);
+        }
+      }, 1000);
+    }
+
+    return () => clearInterval(intervalRef.current);
+  }, [isEnded, targetTime]);
+
+  const days = String(
+    Math.floor(remainingTime / (1000 * 60 * 60 * 24))
+  ).padStart(2, "0");
+  const hr = String(
+    Math.floor((remainingTime / (1000 * 60 * 60)) % 24)
+  ).padStart(2, "0");
+  const min = String(Math.floor((remainingTime / (1000 * 60)) % 60)).padStart(
+    2,
+    "0"
+  );
+  const sec = String(Math.floor((remainingTime / 1000) % 60)).padStart(2, "0");
+
+  const ScrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollRight = () => {
     if (ScrollRef.current) {
       ScrollRef.current.scrollLeft += 350;
-      ScrollRef.current.style.scrollBehavior = 'smooth';
+      ScrollRef.current.style.scrollBehavior = "smooth";
     }
-   }
-   const scrollLeft = () =>{
+  };
+  const scrollLeft = () => {
     if (ScrollRef.current) {
       ScrollRef.current.scrollLeft -= 350;
       ScrollRef.current.style.scrollBehavior = "smooth";
-
     }
-
-   }
-    const products = [
-      {
-        name: "OnePlus",
-        price: 699,
-        img: "oneplusHero.png",
-        discount: 40,
-      },
-      {
-        name: "PlayStation 5",
-        price: 499,
-        img: "ps5Hero.png",
-        discount: 49,
-      },
-      {
-        name: "ROG Gaming",
-        price: 1399,
-        img: "rogHero.png",
-        discount: 43,
-      },
-      {
-        name: "Xbox Series X",
-        price: 499,
-        img: "xboxHero.png",
-        discount: 33,
-      },
-      {
-        name: "Iphone 14",
-        price: 899,
-        img: "hero_endFrame_141.png",
-        discount: 10,
-      },
-      {
-        name: "ROG Gaming",
-        price: 1399,
-        img: "rogHero.png",
-        discount: 70,
-      },
-      {
-        name: "Iphone 14",
-        price: 899,
-        img: "hero_endFrame_141.png",
-        discount: 22,
-      },
-    ];
+  };
+  const products = [
+    {
+      name: "OnePlus",
+      price: 699,
+      img: "oneplusHero.png",
+      discount: 40,
+    },
+    {
+      name: "PlayStation 5",
+      price: 499,
+      img: "ps5Hero.png",
+      discount: 49,
+    },
+    {
+      name: "ROG Gaming",
+      price: 1399,
+      img: "rogHero.png",
+      discount: 43,
+    },
+    {
+      name: "Xbox Series X",
+      price: 499,
+      img: "xboxHero.png",
+      discount: 33,
+    },
+    {
+      name: "Iphone 14",
+      price: 899,
+      img: "hero_endFrame_141.png",
+      discount: 10,
+    },
+    {
+      name: "ROG Gaming",
+      price: 1399,
+      img: "rogHero.png",
+      discount: 70,
+    },
+    {
+      name: "Iphone 14",
+      price: 899,
+      img: "hero_endFrame_141.png",
+      discount: 22,
+    },
+  ];
   return (
     <div className="flex flex-col">
       <h1 className="border-l-15 border-red-500 rounded-sm px-2 text-lg py-1">
@@ -80,22 +120,22 @@ const ProductRail:React.FC<ProductRailsProps> = ({title, subtitle}) => {
             <div className="flex gap-4">
               <div>
                 <h1 className="time-heading">Days</h1>
-                <h1>03</h1>
+                <h1>{days}</h1>
               </div>
               <div className="mt-6 text-red-400">:</div>
               <div>
                 <h1 className="time-heading">Hours</h1>
-                <h1>03</h1>
+                <h1>{hr}</h1>
               </div>
               <div className="mt-6 text-red-400">:</div>
               <div>
                 <h1 className="time-heading">Minutes</h1>
-                <h1>33</h1>
+                <h1>{min}</h1>
               </div>
               <div className="mt-6 text-red-400">:</div>
               <div>
                 <h1 className="time-heading">Seconds</h1>
-                <h1>33</h1>
+                <h1>{sec}</h1>
               </div>
             </div>
           )}
@@ -129,6 +169,6 @@ const ProductRail:React.FC<ProductRailsProps> = ({title, subtitle}) => {
       </div>
     </div>
   );
-}
+};
 
-export default ProductRail
+export default ProductRail;

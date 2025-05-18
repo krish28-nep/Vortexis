@@ -13,6 +13,26 @@ type Category = {
 };
 
 const HomePage = () => {
+  const dbTimeString = "2025-05-18 09:13:00 AM"; // from database
+  const [targetTime, setTargetTime] = useState(
+    new Date(dbTimeString).getTime()
+  );
+
+
+  useEffect(() => {
+     setTargetTime (new Date(dbTimeString).getTime());
+
+    const interval = setInterval(() => {
+      const timeLeft = targetTime - Date.now();
+      if (timeLeft <= 0) {
+        clearInterval(interval);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+
   const [option, setOption] = useState(1);
 
   const [slideClass, setSlideClass] = useState("slide-in");
@@ -166,8 +186,25 @@ const HomePage = () => {
           </div>
         </div>
       </div>
-      <ProductRail title="Today's" subtitle="Flash Sales" />
-      <ProductRail title="This Month" subtitle="Best Selling Products" />
+      {targetTime > Date.now() ? (
+        <ProductRail
+          title="Today's"
+          subtitle="Flash Sales"
+          dbTimeString={dbTimeString}
+        />
+      ) : (
+        <div>
+          <h1 className="border-l-15 border-red-500 text-xl px-4 py-1">
+            Today's
+          </h1>
+          <p className="text-4xl font-semibold">Flash Sale has ended.</p>
+        </div>
+      )}
+      <ProductRail
+        title="This Month"
+        subtitle="Best Selling Products"
+        dbTimeString={dbTimeString}
+      />
       <NewArrivalCart />
       <FeatureCard />
     </div>
