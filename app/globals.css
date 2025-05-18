@@ -2,6 +2,12 @@
 
 
 @theme {
+  --breakpoint-mobile: 30rem;       /* 480px */
+  --breakpoint-tablet: 48rem;       /* 768px */
+  --breakpoint-laptop: 64rem;       /* 1024px */
+  --breakpoint-desktop: 80rem;      /* 1280px */
+  --breakpoint-large-desktop: 96rem; /* 1536px */
+
   --color-primary-50: #f6f6f6;
   --color-primary-100: #e7e7e7;
   --color-primary-200: #d1d1d1;
