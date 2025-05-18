@@ -66,6 +66,18 @@
   .subHeading2 {
     @apply text-3xl font-bold text-tertiary-900;
   }
+
+  .responsive-title {
+    @apply text-xl tablet:text-4xl
+  }
+  
+  .responsive-subtitle {
+    @apply text-xl tablet:text-4xl
+  }
+
+  .responsive-content {
+    @apply text-sm tablet:text-lg
+  }
 }
 /* styles.css */
 .scrollbar-hide {
@@ -78,7 +90,7 @@
 }
 
 .time-heading {
-  @apply font-normal text-xl;
+  @apply font-normal text-sm laptop:text-xl;
 }
 /* styles/globals.css or app/globals.css */
 

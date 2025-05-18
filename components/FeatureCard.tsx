@@ -33,22 +33,21 @@ const FeatureCard = () => {
     },
   ];
   return (
-    <div className="flex justify-around mb-10">
+    <div className="flex justify-around text-center mb-10">
       {features.map((feature, index) => {
         const IconComponent: IconType = iconMap[feature.icon];
         return(
         <div key={index} className="flex flex-col gap-4">
           <div className="flex justify-center ">
-            <div className="bg-neutral-400 rounded-full p-4">
+            <div className="bg-neutral-400 rounded-full p-2 laptop:p-4">
               <IconComponent
-                size={80}
-                className="bg-neutral-900 rounded-full text-neutral-200 p-2"
+                className="bg-neutral-900 text-2xl laptop:text-6xl rounded-full text-neutral-200 p-1 laptop:p-2"
               />
             </div>
           </div>
           <div className="flex flex-col gap-2">
-              <h1 className="text-xl font-semibold">{feature.title}</h1>
-              <h1>{feature.description}</h1>
+              <h1 className="responsive-content font-semibold">{feature.title}</h1>
+              <h1 className="text-xs laptop:text-base">{feature.description}</h1>
           </div>
         </div>
         )
