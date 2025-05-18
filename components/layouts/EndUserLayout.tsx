@@ -1,6 +1,7 @@
 import React from "react";
 import Navbar from "../Navbar";
 import Notification from "../general/Notification";
+import Footer from "../Footer";
 
 const EndUserLayout = ({
   children,
@@ -12,6 +13,9 @@ const EndUserLayout = ({
         <Navbar />
       </header>
       {children}
+      <footer>
+        <Footer/>
+      </footer>
     </div>
   );
 };

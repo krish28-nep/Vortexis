@@ -38,7 +38,7 @@ const Navbar = () => {
     <div className="flex mx-36 my-4 gap-6 items-center text-lg justify-between w-full">
       <h1 className="font-bold cursor-pointer">Exclusive</h1>
       <div className="flex items-center gap-10">
-        <h1 className="cursor-pointer">Home</h1>
+        <h1 onClick={()=>router.push("/")} className="cursor-pointer">Home</h1>
         <h1 className="cursor-pointer">Contact</h1>
         <h1 className="cursor-pointer">About</h1>
         <h1 className="cursor-pointer">Sign Up</h1>
@@ -68,7 +68,7 @@ const Navbar = () => {
                 <div onClick={handleLogout}>Logout</div>
               ) : (
                 <div className="flex gap-4">
-                  <span>Register</span>
+                  <span onClick={()=> router.push("/auth/register")}>Register</span>
                   <span onClick={() => router.push("/auth/login")}>Login</span>
                 </div>
               )}
