@@ -1,5 +1,6 @@
 "use client";
 
+import Categoriescard from "@/components/Categoriescard";
 import FeatureCard from "@/components/FeatureCard";
 import NewArrivalCart from "@/components/NewArrivalCart";
 import ProductRail from "@/components/ProductRail";
@@ -13,7 +14,7 @@ type Category = {
 };
 
 const HomePage = () => {
-  const dbTimeString = "2025-05-18 09:13:00 AM"; // from database
+  const dbTimeString = "2025-06-18 09:13:00 AM"; // from database
   const [targetTime, setTargetTime] = useState(
     new Date(dbTimeString).getTime()
   );
@@ -200,6 +201,7 @@ const HomePage = () => {
           <p className="text-4xl font-semibold">Flash Sale has ended.</p>
         </div>
       )}
+      <Categoriescard/>
       <ProductRail
         title="This Month"
         subtitle="Best Selling Products"
