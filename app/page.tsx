@@ -13,7 +13,7 @@ type Category = {
 };
 
 const HomePage = () => {
-  const dbTimeString = "2025-05-18 09:13:00 AM"; // from database
+  const dbTimeString = "2025-06-18 09:13:00 AM"; // from database
   const [targetTime, setTargetTime] = useState(
     new Date(dbTimeString).getTime()
   );
