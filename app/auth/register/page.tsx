@@ -1,12 +1,16 @@
 "use client";
+import "react-phone-number-input/style.css";
 import { showNotification } from "@/redux/NotificationSlice";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useState } from "react";
 import { useForm, FieldValues, set } from "react-hook-form";
 import { useDispatch } from "react-redux";
-
+import PhoneInput from "react-phone-number-input";
+import { FcGoogle } from "react-icons/fc";
 const page = () => {
+  const [number, setNumber] = useState<string | undefined>();
+
   const router = useRouter();
   const serverUrl =
     process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:4000";
@@ -28,7 +32,10 @@ const page = () => {
         setError("email", { message: emailResponse.data.message });
         return;
       } else {
-        await axios.post(`${serverUrl}/auth/register`, {...data, role: "customer"});
+        await axios.post(`${serverUrl}/auth/register`, {
+          ...data,
+          role: "customer",
+        });
         dispatch(
           showNotification({
             message: "Registeration succesfull",
@@ -36,25 +43,33 @@ const page = () => {
           })
         );
       }
-      router.push("/auth/login")
+      router.push("/auth/login");
     } catch (error) {
       console.log(error);
     }
   };
   return (
-    <div className="flex h-full w-full justify-center items-center">
+    <div className="flex h-full w-full justify-center items-center flex-col py-8">
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <div>
-          <h1 className="text-4xl font-bold">Create An Account</h1>
+          <h1 className="text-4xl font-bold mb-4">Create An Account</h1>
           <h2>Enter Your Details</h2>
         </div>
         <div className="flex flex-col gap-1">
-          <label htmlFor="name">Name</label>
-          <input {...register("name")} type="text" className="border-2 " />
+          <input
+            {...register("name")}
+            type="text"
+            placeholder="Name"
+            className="border-b-2 border-neutral-500 focus:outline-none focus:border-black py-2"
+          />
         </div>
         <div className="flex flex-col gap-1">
-          <label htmlFor="email">Email</label>
-          <input {...register("email")} type="text" className="border-2 " />
+          <input
+            {...register("email")}
+            type="text"
+            placeholder="Email"
+            className="border-b-2 border-neutral-500 focus:outline-none focus:border-black py-2"
+          />
           {errors.email && (
             <span className="text-base text-red-500">
               {String(errors.email)}
@@ -62,31 +77,38 @@ const page = () => {
           )}
         </div>
         <div className="flex flex-col gap-1">
-          <label htmlFor="password">Password</label>
           <input
             {...register("password")}
+            placeholder="Password"
             type="password"
-            className="border-2 "
+            className="border-b-2 border-neutral-500 focus:outline-none focus:border-black py-2"
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label htmlFor="confirmPassword">Confirm Password</label>
           <input
             {...register("confirmPassword")}
+            placeholder="Confirm Password"
             type="password"
-            className="border-2 "
+            className="border-b-2 border-neutral-500 focus:outline-none focus:border-black py-2"
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label htmlFor="phoneNumber">Phone Number</label>
-          <input
-            {...register("phoneNumber")}
-            type="text"
-            className="border-2 "
+          <PhoneInput
+            value={number}
+            onChange={setNumber}
+            defaultCountry="NP"
+            className="border-b-2 border-neutral-500 focus:outline-none focus:border-black py-2"
           />
         </div>
-        <button>Register</button>
+        <button className="bg-red-500 px-2 py-1 text-xl text-neutral-200 cursor-pointer">
+          Create Account
+        </button>
+        <button className="border-1 px-2 py-1 text-xl flex relative justify-center cursor-pointer">
+          <FcGoogle size={30} className="absolute top-1.5 left-2" />
+          <h1 className="self-center">Sign Up With Google</h1>
+        </button>
       </form>
+      <h1 className="m-4 text-xl">Already Have An Account? Login</h1>
     </div>
   );
 };
