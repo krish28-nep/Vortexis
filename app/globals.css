@@ -1,6 +1,5 @@
 @import "tailwindcss";
 
-
 @theme {
   --color-primary-50: #f6f6f6;
   --color-primary-100: #e7e7e7;
@@ -42,23 +41,93 @@
 @body {
   @apply bg-primary-50 text-primary-900;
 }
-@layer components{
-  .heading-admin{
+@layer components {
+  .heading-admin {
     @apply text-5xl font-bold text-secondary-900;
   }
-  .heading{
+  .heading {
     @apply text-5xl font-bold text-tertiary-900;
   }
-  .subHeading-admin{
+  .subHeading-admin {
     @apply text-3xl font-bold text-secondary-900;
   }
-  .subHeading{
+  .subHeading {
     @apply text-3xl font-bold text-tertiary-900;
   }
-  .subHeading-admin2{
+  .subHeading-admin2 {
     @apply text-3xl font-bold text-secondary-900;
   }
-  .subHeading2{
+  .subHeading2 {
     @apply text-3xl font-bold text-tertiary-900;
   }
 }
+/* styles.css */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.time-heading {
+  @apply font-normal text-xl;
+}
+/* styles/globals.css or app/globals.css */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.4s ease-in forwards;
+}
+
+.fade-out {
+  animation: fadeOut 0.4s ease-out forwards;
+}
+@keyframes slideIn {
+  from {
+    transform: translateX(-10%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0%);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0%);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(75%);
+    opacity: 0;
+  }
+}
+
+.slide-in {
+  animation: slideIn 0.3s ease-in-out backwards;
+}
+
+.slide-out {
+  animation: slideOut 0.3s ease-in-out backwards;
+}
+
