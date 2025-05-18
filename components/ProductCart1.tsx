@@ -13,9 +13,9 @@ type Product = {
 
 const ProductCart1: React.FC<Product> = ({ name, price, img, discount }) => {
   return (
-    <div className="min-w-[18rem] max-w-[18rem]">
+    <div className="min-w-[14rem] max-w-[14rem] tablet:min-w-[18rem] tablet:max-w-[18rem]">
       <div className="relative flex w-full flex-col bg-gray-200 pt-10 group transition-all transform ease-in-out duration-300">
-        <div className="absolute top-2 left-2 rounded-lg text-neutral-100 bg-red-500 p-1 z-10">
+        <div className="absolute top-2 left-2 responsive-content rounded-lg text-neutral-100 bg-red-500 p-1 z-10">
          -{discount}%
         </div>
         <div className="absolute top-0 right-0 text-2xl p-2 flex flex-col gap-2 z-10">

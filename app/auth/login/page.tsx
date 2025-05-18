@@ -40,7 +40,7 @@ const loginPage = () => {
         document.cookie = `token=${response.data.token}; path=/;`;
       }
       router.push("/")
-    } catch (error) {
+    } catch (error:any) {
       dispatch(
         showNotification({
           message: "Failed to Login Account",
@@ -48,6 +48,7 @@ const loginPage = () => {
         })
       );
       console.log(error);
+      setError("password", { message: error.response.data.error });
     }
   };
 
@@ -59,7 +60,7 @@ const loginPage = () => {
       >
         <h1 className="text-4xl font-bold">Login in to Exclusive</h1>
 
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-2">
           <label htmlFor="email" className="text-2xl font-semibold">
             Email
           </label>
@@ -81,7 +82,7 @@ const loginPage = () => {
             </span>
           )}
         </div>
-        <div className="flex flex-col relative">
+        <div className="flex flex-col relative gap-2">
           <label htmlFor="password" className="text-2xl font-semibold">
             Password
           </label>

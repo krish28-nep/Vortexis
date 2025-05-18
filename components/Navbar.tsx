@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import { CircleUser, Heart, Search, ShoppingCartIcon } from "lucide-react";
+import { CircleUser, Hamburger, Heart, Search, ShoppingCartIcon } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 const Navbar = () => {
   const router = useRouter();
@@ -25,32 +26,38 @@ const Navbar = () => {
   }, []);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
+    const storedToken = Cookies.get("token");
     setToken(!!storedToken);
   }, [pathname]);
 
   const handleLogout = () => {
     document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    localStorage.removeItem("token");
     setToken(false);
   };
   return (
-    <div className="flex mx-36 my-4 gap-6 items-center text-lg justify-between w-full">
-      <h1 className="font-bold cursor-pointer">Exclusive</h1>
-      <div className="flex items-center gap-10">
-        <h1 onClick={()=>router.push("/")} className="cursor-pointer">Home</h1>
+    <div className="flex mx-8 laptop:mx-36 my-4 gap-6 items-center text-lg justify-between w-full">
+      <div className="flex items-center gap-2">
+        <Hamburger className="laptop:hidden"/>
+        <h1 className="font-bold cursor-pointer">Exclusive</h1>
+      </div>
+      <div className="hidden laptop:flex items-center gap-10">
+        <h1 onClick={() => router.push("/")} className="cursor-pointer">
+          Home
+        </h1>
         <h1 className="cursor-pointer">Contact</h1>
         <h1 className="cursor-pointer">About</h1>
         <h1 className="cursor-pointer">Sign Up</h1>
       </div>
-      <div className="flex items-center gap-6 relative">
-        <input
-          type="text"
-          className="border-2 h-8 border-gray-500 py-2 px-4 pr-10 rounded-lg"
-        />
-        <Search className="absolute right-38 cursor-pointer" />
-        <Heart />
-        <ShoppingCartIcon />
+      <div className="flex items-center gap-6">
+        <div className="hidden laptop:flex items-center gap-6 relative">
+          <input
+            type="text"
+            className="border-2 h-8 border-gray-500 py-2 px-4 pr-10 rounded-lg"
+          />
+          <Search className="absolute right-27 cursor-pointer" />
+          <Heart />
+          <ShoppingCartIcon />
+        </div>
         <div
           ref={dropdownRef}
           onClick={() => setModelOpen(!modelOpen)}
@@ -63,12 +70,14 @@ const Navbar = () => {
           )}
 
           {modelOpen && (
-            <div className="absolute z-50 top-10 right-0 text-neutral-100 font-semibold bg-red-400 rounded-lg px-6 py-2 flex items-center justify-center">
+            <div className="absolute z-50 top-9 right-0 text-neutral-100 font-semibold bg-red-400 rounded-lg px-6 py-2 flex items-center justify-center">
               {token ? (
                 <div onClick={handleLogout}>Logout</div>
               ) : (
                 <div className="flex gap-4">
-                  <span onClick={()=> router.push("/auth/register")}>Register</span>
+                  <span onClick={() => router.push("/auth/register")}>
+                    Register
+                  </span>
                   <span onClick={() => router.push("/auth/login")}>Login</span>
                 </div>
               )}
