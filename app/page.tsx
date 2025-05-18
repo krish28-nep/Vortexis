@@ -1,5 +1,6 @@
 "use client";
 
+import Categoriescard from "@/components/Categoriescard";
 import FeatureCard from "@/components/FeatureCard";
 import NewArrivalCart from "@/components/NewArrivalCart";
 import ProductRail from "@/components/ProductRail";
@@ -200,6 +201,7 @@ const HomePage = () => {
           <p className="text-4xl font-semibold">Flash Sale has ended.</p>
         </div>
       )}
+      <Categoriescard/>
       <ProductRail
         title="This Month"
         subtitle="Best Selling Products"
