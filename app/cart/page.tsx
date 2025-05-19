@@ -43,6 +43,11 @@ const Page = () => {
         // Handle coupon logic here
     };
 
+    const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    const shipping:number = subtotal > 0 ? 0 : 0; // you can make this dynamic, e.g., free over $100
+    const total = subtotal + shipping;
+
+
     return (
         <div className="cart-wrap pt-[80px]">
             {/* table header */}
@@ -148,6 +153,7 @@ const Page = () => {
             </div>
 
             {/* subtotal */}
+            {/* Subtotal section with the fix */}
             <div className="cart-total-wrap flex gap-6 justify-between mt-10">
                 <form onSubmit={(e) => { e.preventDefault(); submitHandler(); }}>
                     <div className="coupon-wrap flex gap-2">
@@ -171,16 +177,25 @@ const Page = () => {
                     <div className="space-y-4">
                         <div className="flex justify-between border-b border-black pb-2">
                             <span>Subtotal:</span>
-                            <span className="price">$1750</span>
+                            <span className="price">${subtotal.toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between border-b border-black pb-2">
                             <span>Shipping:</span>
-                            <span className="price">Free</span>
+                            <span className="price">{shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}</span>
                         </div>
-                        <div className="flex justify-between  pb-2">
+                        <div className="flex justify-between pb-2">
                             <span>Total:</span>
-                            <span className="price">$1750</span>
+                            <span className="price">${total.toFixed(2)}</span>
                         </div>
+                    </div>
+                    <div className="btn-wrap flex justify-center mt-4">
+                        <ButtonComponents
+                            content="Proceed to checkout"
+                            bg_color="#DB4444"
+                            color="#fff"
+                            border_color="#DB4444"
+                            onClick={() => router.push('/')}
+                        />
                     </div>
                 </div>
             </div>
