@@ -7,7 +7,7 @@ const Footer = () => {
       <div className="grid grid-cols-2 laptop:grid-cols-4 text-neutral-200 gap-10 laptop:gap-20 mx-auto">
         <div className="flex flex-col gap-3">
           <h1 className="text-xl tablet:text-3xl font-semibold">Exclusive</h1>
-          <h1 className="text-sm :text-base">Subscribe</h1>
+          <h1 className="text-sm tablet:text-base">Subscribe</h1>
           <h1 className="text-sm tablet:text-base">
             Get 10% off your first order
           </h1>
@@ -53,7 +53,7 @@ const Footer = () => {
         </div>
       </div>
       <div className="text-neutral-600 mt-8 self-center">
-        Copyright Rimel 2022. All right reserved
+        Copyright Rimel 2025. All right reserved
       </div>
     </div>
   );

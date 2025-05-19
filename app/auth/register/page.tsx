@@ -34,6 +34,7 @@ const page = () => {
       } else {
         await axios.post(`${serverUrl}/auth/register`, {
           ...data,
+          phoneNumber: number,
           role: "customer",
         });
         dispatch(
