@@ -9,12 +9,12 @@ const EndUserLayout = ({
   return (
     <div className="flex flex-col h-screen">
       <Notification />
-      <header className="flex sticky w-full h-20 bg-white top-0">
+      <header className="flex fixed z-50 w-full h-20 bg-white top-0">
         <Navbar />
       </header>
-      {children}
-      <footer>
-        <Footer/>
+      <div className="px-4 laptop:px-36 my-20">{children}</div>
+      <footer className="">
+        <Footer />
       </footer>
     </div>
   );

@@ -5,13 +5,13 @@ import ProductCart1 from "./ProductCart1";
 type ProductRailsProps = {
   title: string;
   subtitle: string;
-  dbTimeString: string
+  dbTimeString: string;
 };
 
 const ProductRail: React.FC<ProductRailsProps> = ({
   title,
   subtitle,
-  dbTimeString
+  dbTimeString,
 }) => {
   const targetTime = new Date(dbTimeString).getTime();
 
@@ -110,14 +110,14 @@ const ProductRail: React.FC<ProductRailsProps> = ({
   ];
   return (
     <div className="flex flex-col">
-      <h1 className="border-l-15 border-red-500 rounded-sm px-2 text-lg py-1">
+      <h1 className="border-l-15 border-red-500 rounded-sm px-2 responsive-content py-1">
         {title}
       </h1>
-      <div className="flex justify-between">
-        <div className="text-4xl py-4 font-semibold flex gap-35">
+      <div className="flex flex-col-reverse laptop:flex-row  laptop:justify-between">
+        <div className="responsive-subtitle py-4 font-semibold flex gap-5 justify-between laptop:gap-35">
           <h1 className="">{subtitle}</h1>
           {subtitle == "Flash Sales" && (
-            <div className="flex gap-4">
+            <div className="flex gap-2 laptop:gap-4">
               <div>
                 <h1 className="time-heading">Days</h1>
                 <h1>{days}</h1>
@@ -140,7 +140,7 @@ const ProductRail: React.FC<ProductRailsProps> = ({
             </div>
           )}
         </div>
-        <div className="flex text-6xl gap-4 font-normal text-neutral-500 cursor-pointer">
+        <div className="flex text-4xl tablet:text-6xl gap-3 tablet:gap-4 font-normal text-neutral-500 cursor-pointer self-end -mt-6 laptop:self-auto">
           <IoIosArrowRoundBack
             className="p-2 bg-neutral-300 rounded-full hover:bg-neutral-200 active:scale-130 transition-all ease-in-out duration-300"
             onClick={scrollLeft}
@@ -151,7 +151,10 @@ const ProductRail: React.FC<ProductRailsProps> = ({
           />
         </div>
       </div>
-      <div ref={ScrollRef} className="flex gap-10 overflow-auto scrollbar-hide">
+      <div
+        ref={ScrollRef}
+        className="flex gap-4 tablet:gap-10 overflow-auto scrollbar-hide"
+      >
         {products.map((product: any, index: number) => (
           <ProductCart1
             key={index}
@@ -163,7 +166,7 @@ const ProductRail: React.FC<ProductRailsProps> = ({
         ))}
       </div>
       <div className="flex justify-center">
-        <span className="border-2 px-4 py-2 text-lg bg-red-500 text-neutral-100">
+        <span className="border-2 px-4 py-2 responsive-content bg-red-500 text-neutral-100">
           View All Products
         </span>
       </div>
