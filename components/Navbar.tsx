@@ -1,7 +1,17 @@
 import React, { useEffect, useRef, useState } from "react";
-import { CircleUser, Hamburger, Heart, Search, ShoppingCartIcon } from "lucide-react";
+import { jwtDecode } from "jwt-decode";
+import {
+  CircleUser,
+  Hamburger,
+  Heart,
+  Search,
+  ShoppingCartIcon,
+} from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+interface TokenPayload {
+  userId: string;
+}
 
 const Navbar = () => {
   const router = useRouter();
@@ -9,6 +19,10 @@ const Navbar = () => {
   const [modelOpen, setModelOpen] = useState(false);
   const pathname = usePathname();
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const isActive = (path: string) =>
+    pathname === path
+      ? "border-b-2 border-blue-500 text-blue-500"
+      : "border-b-2 border-transparent";
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -27,7 +41,15 @@ const Navbar = () => {
 
   useEffect(() => {
     const storedToken = Cookies.get("token");
-    setToken(!!storedToken);
+    if (storedToken) {
+      setToken(true);
+      try {
+        const decoded = jwtDecode<TokenPayload>(storedToken);
+        console.log("decode",decoded.userId);
+      } catch (error) {
+        console.log(error);
+      }
+    }
   }, [pathname]);
 
   const handleLogout = () => {
@@ -37,17 +59,28 @@ const Navbar = () => {
   return (
     <div className="flex mx-8 laptop:mx-36 my-4 gap-6 items-center text-lg justify-between w-full">
       <div className="flex items-center gap-2">
-        <Hamburger className="laptop:hidden"/>
+        <Hamburger className="laptop:hidden" />
         <h1 className="font-bold cursor-pointer">Exclusive</h1>
       </div>
       <div className="hidden laptop:flex items-center gap-10">
-        <h1 onClick={() => router.push("/")} className="cursor-pointer">
-          Home
-        </h1>
-        <h1 className="cursor-pointer">Contact</h1>
-        <h1 className="cursor-pointer">About</h1>
-        <h1 className="cursor-pointer">Sign Up</h1>
+        {[
+          { label: "Home", path: "/" },
+          { label: "Contact", path: "/contact" },
+          { label: "About", path: "/about" },
+          { label: "Sign Up", path: "/auth/register" },
+        ].map(({ label, path }) => (
+          <h1
+            key={path}
+            onClick={() => router.push(path)}
+            className={`cursor-pointer pb-1 transition-all duration-300 ease-in-out ${isActive(
+              path
+            )}`}
+          >
+            {label}
+          </h1>
+        ))}
       </div>
+
       <div className="flex items-center gap-6">
         <div className="hidden laptop:flex items-center gap-6 relative">
           <input
