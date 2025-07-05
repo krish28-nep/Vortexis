@@ -3,11 +3,8 @@
 import Categoriescard from "@/components/Categoriescard";
 import FeatureCard from "@/components/FeatureCard";
 import NewArrivalCart from "@/components/NewArrivalCart";
-import ProductRail from "@/components/ProductRail";
-import SlideContent from "@/components/SlideContent";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { MoveRight } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 
@@ -16,12 +13,16 @@ type Category = {
 };
 
 const HomePage = () => {
-  const dbTimeString = "2025-05-18 09:13:00 AM"; // from database
+  const dbTimeString = "2025-06-18 09:13:00 AM"; // from database
   const [targetTime, setTargetTime] = useState(
     new Date(dbTimeString).getTime()
   );
 
   const ProductRail = dynamic(() => import("@/components/ProductRail"), {
+    ssr: false,
+  });
+
+  const SlideContent = dynamic(() => import("@/components/SlideContent"), {
     ssr: false,
   });
 

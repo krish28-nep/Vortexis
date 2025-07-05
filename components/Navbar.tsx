@@ -89,7 +89,7 @@ const Navbar = () => {
           />
           <Search className="absolute right-27 cursor-pointer" />
           <Heart />
-          <ShoppingCartIcon />
+          <ShoppingCartIcon onClick={()=>router.push("/cart")} />
         </div>
         <div
           ref={dropdownRef}

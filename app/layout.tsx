@@ -7,6 +7,7 @@ import ReactQueryProvider from "@/utils/providers/ReactQueryProvider";
 import EndUserLayout from "@/components/layouts/EndUserLayout";
 import { Provider } from "react-redux";
 import { store } from "@/redux/store";
+import AdminLayout from "@/components/layouts/AdminLayout";
 
 // export const metadata: Metadata = {
 //   title: "Create Next App",
@@ -14,7 +15,7 @@ import { store } from "@/redux/store";
 // };
 const geistSans = Geist({
   variable: "--font-geist-sans",
-  subsets: ["latin"],
+subsets: ["latin"]
 });
 
 const geistMono = Geist_Mono({
@@ -38,7 +39,7 @@ export default function RootLayout({
           <ReactQueryProvider>
             <div>
               {isAdminRoute ? (
-                <>{children}</>
+                <AdminLayout>{children}</AdminLayout>
               ) : (
                 <EndUserLayout>{children}</EndUserLayout>
               )}
