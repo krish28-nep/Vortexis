@@ -1,4 +1,5 @@
 "use client";
+
 import { showNotification } from "@/redux/NotificationSlice";
 import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
@@ -10,61 +11,81 @@ import { useDispatch } from "react-redux";
 const AddPage = () => {
   const [isFlashSale, setIsFlashSale] = useState(false);
   const dispatch = useDispatch();
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [images, setImages] = useState<File[]>([]);
   const server = process.env.NEXT_PUBLIC_SERVER_URL;
   const queryClient = useQueryClient();
   const router = useRouter();
 
   const {
     register,
-    formState: { errors, isSubmitting, isSubmitted },
+    formState: { errors },
     reset,
     handleSubmit,
     setError,
-    watch,
   } = useForm({ mode: "onChange" });
-  const addProductImage = async () => {
-    if (!imageFile) {
-      setError("image", { message: "Product Image is Required" });
-      return;
-    }
+
+  // Create preview URLs
+  const createPreviewUrls = (files: File[]) => {
+    return files.map((file) => URL.createObjectURL(file));
+  };
+
+  // Upload a single image file
+  const uploadImage = async (imageFile: File) => {
     try {
       const formData = new FormData();
       formData.append("file", imageFile);
       const res = await axios.post(`${server}/api/upload`, formData, {
         headers: {
-          "Content-Type": "multipart/formData",
+          "Content-Type": "multipart/form-data",
         },
       });
-      console.log(res);
-      return res.data.file.path;
+      return res.data.file.path; // Adjust based on your API response
     } catch (e) {
-      console.log(e);
+      console.error("Image upload failed", e);
+      throw e;
     }
   };
 
+  // Handle file input
+  const handleFileSelection = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = e.target.files;
+    if (!selectedFiles || selectedFiles.length === 0) return;
+    setImages((prev) => [...prev, ...Array.from(selectedFiles)]);
+  };
+
+  // Handle form submission
   const onSubmit = async (data: FieldValues) => {
     try {
-      const imageUrl = await addProductImage();
-      const res = await axios.post(`${server}/api/products`, {
+      if (images.length === 0) {
+        setError("images", { message: "At least one image is required" });
+        return;
+      }
+
+      const imageUrls = await Promise.all(images.map(uploadImage));
+
+      await axios.post(`${server}/api/products`, {
         ...data,
-        imageUrls: imageUrl,
+        imageUrls,
+        isFlashSale,
       });
+
       dispatch(
         showNotification({
-          message: "Products added Succesfully",
+          message: "Product added successfully",
           type: "success",
         })
       );
+
       queryClient.invalidateQueries({ queryKey: ["products"] });
-      // reset();
-      // router.push("./");
+      reset();
+      setImages([]);
+      router.push("./");
     } catch (e) {
-      console.log(e);
+      console.error(e);
       dispatch(
         showNotification({
-          message: "Error in Products adding",
-          type: "success",
+          message: "Error adding product",
+          type: "error",
         })
       );
     }
@@ -82,6 +103,8 @@ const AddPage = () => {
             Fill in the details below to add a new product to your inventory
           </h2>
         </div>
+
+        {/* Product Name */}
         <div className="flex flex-col gap-2">
           <label htmlFor="name">Product Name *</label>
           <input
@@ -92,12 +115,14 @@ const AddPage = () => {
           />
           {errors.name && (
             <span className="text-base text-red-500">
-              {String(errors?.name?.message)}
+              {String(errors.name.message)}
             </span>
           )}
         </div>
+
+        {/* Description */}
         <div className="flex flex-col gap-2">
-          <label htmlFor="description">Description</label>
+          <label htmlFor="description">Description *</label>
           <textarea
             {...register("description", {
               required: "Description is required",
@@ -108,22 +133,24 @@ const AddPage = () => {
           />
           {errors.description && (
             <span className="text-base text-red-500">
-              {String(errors?.description?.message)}
+              {String(errors.description.message)}
             </span>
           )}
         </div>
+
+        {/* Price and Discount */}
         <div className="flex gap-4">
           <div className="flex flex-col gap-2">
             <label htmlFor="price">Price($)</label>
             <input
-              {...register("price", { required: "price is required" })}
+              {...register("price", { required: "Price is required" })}
               type="text"
               placeholder="0.00"
               className="border px-2 py-1 rounded-lg"
             />
             {errors.price && (
               <span className="text-base text-red-500">
-                {String(errors?.price?.message)}
+                {String(errors.price.message)}
               </span>
             )}
           </div>
@@ -139,69 +166,75 @@ const AddPage = () => {
             />
             {errors.discountPercent && (
               <span className="text-base text-red-500">
-                {String(errors?.discountPercent?.message)}
+                {String(errors.discountPercent.message)}
               </span>
             )}
           </div>
         </div>
+
+        {/* Stock and Rating */}
         <div className="flex gap-4">
           <div className="flex flex-col gap-2">
             <label htmlFor="stock">Stock Quantity</label>
             <input
-              {...register("stock", { required: "Stock quanity is required" })}
-              type="text"
-              placeholder="0.00"
+              {...register("stock", { required: "Stock quantity is required" })}
+              type="number"
+              placeholder="0"
               className="border px-2 py-1 rounded-lg"
             />
             {errors.stock && (
               <span className="text-base text-red-500">
-                {String(errors?.stock?.message)}
+                {String(errors.stock.message)}
               </span>
             )}
           </div>
-          <div className="flex flex-col w-full gap-2">
+          <div className="flex flex-col gap-2 w-full">
             <label htmlFor="rating">Rating</label>
             <input
               {...register("rating", { required: "Rating is required" })}
               type="number"
-              max={5}
               min={0}
-              placeholder="select rating"
-              className="border px-2 py-1 rounded-lg w-full"
+              max={5}
+              step="0.1"
+              placeholder="Enter rating (0–5)"
+              className="border px-2 py-1 rounded-lg"
             />
             {errors.rating && (
               <span className="text-base text-red-500">
-                {String(errors?.rating?.message)}
+                {String(errors.rating.message)}
               </span>
             )}
           </div>
         </div>
+
+        {/* Image Upload */}
         <div className="flex flex-col gap-2">
           <label htmlFor="image">Product Images *</label>
           <input
-            accept="image/*"
             type="file"
+            multiple
+            accept="image/*"
+            onChange={handleFileSelection}
             className="border px-2 py-1 rounded-lg"
-            onChange={(e) => {
-              if (e.target.files?.[0]) {
-                setImageFile(e.target.files?.[0]);
-              }
-            }}
           />
-          {imageFile && (
-            <img
-              src={URL.createObjectURL(imageFile)}
-              alt="Preview"
-              className="w-20 h-20 object-cover rounded"
-            />
-          )}
-          {errors.imageFile && (
+          {errors.images && (
             <span className="text-base text-red-500">
-              {String(errors?.imageFile?.message)}
+              {String(errors.images.message)}
             </span>
           )}
+          <div className="flex gap-2 flex-wrap mt-2">
+            {images.map((file, idx) => (
+              <img
+                key={idx}
+                src={URL.createObjectURL(file)}
+                alt={`preview-${idx}`}
+                className="w-20 h-20 object-cover rounded"
+              />
+            ))}
+          </div>
         </div>
 
+        {/* Flash Sale Toggle */}
         <div className="flex justify-between items-center border rounded-lg px-2 py-1">
           <div className="flex flex-col gap-1">
             <label htmlFor="flash">Flash Sale</label>
@@ -223,14 +256,23 @@ const AddPage = () => {
             ></div>
           </button>
         </div>
+
+        {/* Buttons */}
         <div className="flex justify-around">
           <button
             type="button"
             className="px-2 py-1 rounded-lg bg-red-500 text-neutral-100"
+            onClick={() => {
+              reset();
+              setImages([]);
+            }}
           >
             Cancel
           </button>
-          <button className="px-2 py-1 rounded-lg bg-green-500 text-neutral-100">
+          <button
+            type="submit"
+            className="px-2 py-1 rounded-lg bg-green-500 text-neutral-100"
+          >
             Add Product
           </button>
         </div>

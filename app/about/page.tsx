@@ -40,23 +40,23 @@ const Aboutpage = () => {
       description: "Annual gross sales in our site",
     },
   ];
-  const features2: feature[] = [
-    {
-      img: "CiShop",
-      title: "10.5K",
-      description: "Sallers active our site",
-    },
-    {
-      img: "CiDollar",
-      title: "33K",
-      description: "Monthly Product Sale",
-    },
-    {
-      img: "BsBagCheck",
-      title: "45.5K",
-      description: "Customer active in our site",
-    },
-  ];
+  // const features2: feature[] = [
+  //   {
+  //     img: "CiShop",
+  //     title: "10.5K",
+  //     description: "Sallers active our site",
+  //   },
+  //   {
+  //     img: "CiDollar",
+  //     title: "33K",
+  //     description: "Monthly Product Sale",
+  //   },
+  //   {
+  //     img: "BsBagCheck",
+  //     title: "45.5K",
+  //     description: "Customer active in our site",
+  //   },
+  // ];
   return (
     <div className="mx-35">
       <h1>
