@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { IoIosArrowRoundBack, IoIosArrowRoundForward } from "react-icons/io";
-import ProductCart1 from "./ProductCart1";
+import ProductCard from "../components/ProductCard"
 
 type ProductRailsProps = {
   title: string;
@@ -156,7 +156,7 @@ const ProductRail: React.FC<ProductRailsProps> = ({
         className="flex gap-4 tablet:gap-10 overflow-auto scrollbar-hide"
       >
         {products.map((product: any, index: number) => (
-          <ProductCart1
+          <ProductCard
             key={index}
             name={product.name}
             img={product.img}

@@ -8,7 +8,7 @@ import { FaEye } from "react-icons/fa";
 import { FaEyeLowVision } from "react-icons/fa6";
 import { useDispatch } from "react-redux";
 
-const loginPage = () => {
+const LoginPage = () => {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const {
@@ -116,4 +116,4 @@ const loginPage = () => {
     </div>
   );
 };
-export default loginPage;
+export default LoginPage;

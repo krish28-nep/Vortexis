@@ -1,9 +1,7 @@
 import React from "react";
 import { IconType } from "react-icons";
 import { CiCamera, CiDesktop, CiHeadphones, CiMobile3 } from "react-icons/ci";
-import { FaGamepad } from "react-icons/fa";
 import { IoGameControllerOutline } from "react-icons/io5";
-import { MdComputer, MdOutlineWatch } from "react-icons/md";
 import { PiWatchLight } from "react-icons/pi";
 
 const iconMap = {
