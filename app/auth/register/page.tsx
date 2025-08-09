@@ -4,11 +4,11 @@ import { showNotification } from "@/redux/NotificationSlice";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
-import { useForm, FieldValues, set } from "react-hook-form";
+import { useForm, FieldValues} from "react-hook-form";
 import { useDispatch } from "react-redux";
 import PhoneInput from "react-phone-number-input";
 import { FcGoogle } from "react-icons/fc";
-const page = () => {
+const Registerpage = () => {
   const [number, setNumber] = useState<string | undefined>();
 
   const router = useRouter();
@@ -114,4 +114,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Registerpage;

@@ -1,5 +1,4 @@
 "use client";
-import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { usePathname } from "next/navigation";
@@ -29,6 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
+  const hideLayoutRoute = pathname == "/admin";
   const isAdminRoute = pathname.startsWith("/admin") && pathname != "/admin";
   return (
     <html lang="en">
@@ -38,7 +38,14 @@ export default function RootLayout({
         <Provider store={store}>
           <ReactQueryProvider>
             <div>
-              {isAdminRoute ? (
+              {/* {hideLayoutRoute?{children}:isAdminRoute ? (
+                <AdminLayout>{children}</AdminLayout>
+              ) : (
+                <EndUserLayout>{children}</EndUserLayout>
+              )} */}
+              {hideLayoutRoute ? (
+                <>{children}</>
+              ) : isAdminRoute ? (
                 <AdminLayout>{children}</AdminLayout>
               ) : (
                 <EndUserLayout>{children}</EndUserLayout>

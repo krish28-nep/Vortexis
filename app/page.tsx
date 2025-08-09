@@ -3,17 +3,18 @@
 import Categoriescard from "@/components/Categoriescard";
 import FeatureCard from "@/components/FeatureCard";
 import NewArrivalCart from "@/components/NewArrivalCart";
+import SlideContent from "@/components/SlideContent";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import dynamic from "next/dynamic";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 type Category = {
   name: string;
 };
 
 const HomePage = () => {
-  const dbTimeString = "2025-06-18 09:13:00 AM"; // from database
+  const dbTimeString = "2025-08-18 09:13:00 AM"; // from database
   const [targetTime, setTargetTime] = useState(
     new Date(dbTimeString).getTime()
   );
@@ -37,7 +38,7 @@ const HomePage = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [targetTime]);
 
   const fetchCategories = async () => {
     const { data } = await axios.get(
@@ -46,7 +47,7 @@ const HomePage = () => {
     return data;
   };
 
-  const { data: categoryData, isLoading } = useQuery({
+  const { data: categoryData} = useQuery({
     queryKey: ["categories"],
     queryFn: fetchCategories,
   });
@@ -71,7 +72,7 @@ const HomePage = () => {
       ) : (
         <div className="space-y-2">
           <h1 className="border-l-15 border-red-500 text-sm tablet:text-xl px-2 py-1">
-            Today's
+            {"Today's"}
           </h1>
           <p className="responsive-subtitle font-semibold">
             Flash Sale has ended.

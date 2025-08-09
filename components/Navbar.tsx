@@ -9,16 +9,20 @@ import {
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+// import Image from "next/image"; // Uncomment if using <Image />
+
 interface TokenPayload {
-  userId: string;
+  id: string;
+  name: string;
 }
 
 const Navbar = () => {
   const router = useRouter();
-  const [token, setToken] = useState(false);
-  const [modelOpen, setModelOpen] = useState(false);
+  const [user, setUser] = useState<TokenPayload | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
   const pathname = usePathname();
   const dropdownRef = useRef<HTMLDivElement>(null);
+
   const isActive = (path: string) =>
     pathname === path
       ? "border-b-2 border-blue-500 text-blue-500"
@@ -30,7 +34,7 @@ const Navbar = () => {
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target as Node)
       ) {
-        setModelOpen(false);
+        setModalOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -42,26 +46,32 @@ const Navbar = () => {
   useEffect(() => {
     const storedToken = Cookies.get("token");
     if (storedToken) {
-      setToken(true);
       try {
         const decoded = jwtDecode<TokenPayload>(storedToken);
-        console.log("decode",decoded.userId);
+        setUser(decoded);
       } catch (error) {
-        console.log(error);
+        console.error(error);
+        setUser(null);
       }
+    } else {
+      setUser(null);
     }
   }, [pathname]);
 
   const handleLogout = () => {
-    document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    setToken(false);
+    Cookies.remove("token");
+    setUser(null);
+    setModalOpen(false);
+    router.push("/");
   };
+
   return (
     <div className="flex mx-8 laptop:mx-36 my-4 gap-6 items-center text-lg justify-between w-full">
       <div className="flex items-center gap-2">
         <Hamburger className="laptop:hidden" />
         <h1 className="font-bold cursor-pointer">Exclusive</h1>
       </div>
+
       <div className="hidden laptop:flex items-center gap-10">
         {[
           { label: "Home", path: "/" },
@@ -87,25 +97,33 @@ const Navbar = () => {
             type="text"
             className="border-2 h-8 border-gray-500 py-2 px-4 pr-10 rounded-lg"
           />
-          <Search className="absolute right-27 cursor-pointer" />
+          <Search className="absolute right-27 top-1/2 transform -translate-y-1/2 cursor-pointer" />
           <Heart />
           <ShoppingCartIcon onClick={()=>router.push("/cart")} />
         </div>
+
         <div
           ref={dropdownRef}
-          onClick={() => setModelOpen(!modelOpen)}
+          onClick={() => setModalOpen(!modalOpen)}
           className="cursor-pointer w-7 h-7 relative"
         >
-          {token ? (
+          {user ? (
             <img src="/xboxLogo.png" className="rounded-full object-cover" />
           ) : (
+            // Or use next/image if you prefer:
+            // <Image src="/xboxLogo.png" alt="Avatar" width={28} height={28} className="rounded-full object-cover" />
             <CircleUser />
           )}
 
-          {modelOpen && (
+          {modalOpen && (
             <div className="absolute z-50 top-9 right-0 text-neutral-100 font-semibold bg-red-400 rounded-lg px-6 py-2 flex items-center justify-center">
-              {token ? (
-                <div onClick={handleLogout}>Logout</div>
+              {user ? (
+                <div className="flex flex-col items-center gap-1">
+                  <div>Hi, {user.name}</div>
+                  <button onClick={handleLogout} className="cursor-pointer hover:text-neutral-300" >
+                    Logout
+                  </button>
+                </div>
               ) : (
                 <div className="flex gap-4">
                   <span onClick={() => router.push("/auth/register")}>

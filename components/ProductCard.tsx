@@ -1,4 +1,3 @@
-import { Star } from "lucide-react";
 import React from "react";
 import { CiHeart } from "react-icons/ci";
 import { FaRegEye, FaStar } from "react-icons/fa";
@@ -8,15 +7,15 @@ type Product = {
   name: string;
   price: number;
   img: string;
-  discount: number
+  discount: number;
 };
 
-const ProductCart1: React.FC<Product> = ({ name, price, img, discount }) => {
+const ProductCard: React.FC<Product> = ({ name, price, img, discount }) => {
   return (
     <div className="min-w-[14rem] max-w-[14rem] tablet:min-w-[18rem] tablet:max-w-[18rem]">
       <div className="relative flex w-full flex-col bg-gray-200 pt-10 group transition-all transform ease-in-out duration-300">
         <div className="absolute top-2 left-2 responsive-content rounded-lg text-neutral-100 bg-red-500 p-1 z-10">
-         -{discount}%
+          -{discount}%
         </div>
         <div className="absolute top-0 right-0 text-2xl p-2 flex flex-col gap-2 z-10">
           <div className="bg-neutral-100 rounded-full p-1">
@@ -26,7 +25,11 @@ const ProductCart1: React.FC<Product> = ({ name, price, img, discount }) => {
             <FaRegEye />
           </div>
         </div>
-        <img className="object-cover h-40 hover:scale-140 transtion-all transform ease-in-out duration-300 z-0" src={img} alt={name} />
+        <img
+          className="object-cover h-40 hover:scale-140 transtion-all transform ease-in-out duration-300 z-0"
+          src={img}
+          alt={name}
+        />
         <div className="bg-black text-neutral-100 py-1 flex justify-center scale-0 group-hover:scale-100 transform transition-all ease-in-out duration-300 cursor-pointer">
           Add To Cart
         </div>
@@ -46,4 +49,4 @@ const ProductCart1: React.FC<Product> = ({ name, price, img, discount }) => {
   );
 };
 
-export default ProductCart1;
+export default ProductCard;
