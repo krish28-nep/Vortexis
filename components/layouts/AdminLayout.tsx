@@ -1,16 +1,15 @@
 import React from "react";
-import Navbar from "../Navbar";
 import Notification from "../general/Notification";
-import Footer from "../Footer";
+import SideBarAdmin from "../SideBarAdmin";
 
 const AdminLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex h-screen">
       <Notification />
-      <div className="my-20 px-4 laptop:px-36">{children}</div>
+      <SideBarAdmin />
+      <div className=" w-full px-10 mt-16">{children}</div>
     </div>
   );
 };
 
 export default AdminLayout;
-

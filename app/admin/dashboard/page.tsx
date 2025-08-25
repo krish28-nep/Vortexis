@@ -5,7 +5,7 @@ import { IoCartOutline } from "react-icons/io5";
 
 const DashboardPage = () => {
   return (
-    <div className="bg-gray-100 flex flex-col gap-10 px-8 py-4">
+    <div className="bg-gray-100 flex flex-col gap-10 my-10 px-8 shadow-2xl py-4">
       <div>
         <h1 className="font-semibold text-2xl">Dashboard</h1>
         <p>Overview of your admin panel statistics and recent activity.</p>

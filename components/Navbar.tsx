@@ -99,7 +99,7 @@ const Navbar = () => {
           />
           <Search className="absolute right-27 top-1/2 transform -translate-y-1/2 cursor-pointer" />
           <Heart />
-          <ShoppingCartIcon />
+          <ShoppingCartIcon onClick={()=>router.push("/cart")} />
         </div>
 
         <div

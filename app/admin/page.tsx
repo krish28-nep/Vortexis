@@ -24,7 +24,7 @@ const Loginpage = () => {
   const onSubmit = async (data: FieldValues) => {
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/auth/login`,data
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,data
       );
       console.log(response);
       if(response){

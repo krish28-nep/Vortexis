@@ -1,12 +1,19 @@
 "use client";
 
 import { showNotification } from "@/redux/NotificationSlice";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
-import { useForm, FieldValues } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@/components/general/Button";
+import {
+  ProductCreateInput,
+  productCreateSchema,
+} from "@/schema/product.schema";
+import { addProduct } from "@/lib/api/product";
 
 const AddPage = () => {
   const [isFlashSale, setIsFlashSale] = useState(false);
@@ -18,11 +25,14 @@ const AddPage = () => {
 
   const {
     register,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     reset,
+    setValue,
     handleSubmit,
     setError,
-  } = useForm({ mode: "onChange" });
+  } = useForm<ProductCreateInput>({
+    resolver: zodResolver(productCreateSchema),
+  });
 
   // Create preview URLs
   const createPreviewUrls = (files: File[]) => {
@@ -53,17 +63,40 @@ const AddPage = () => {
     setImages((prev) => [...prev, ...Array.from(selectedFiles)]);
   };
 
+  const { mutate: addMutation } = useMutation({
+    mutationFn: addProduct,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      reset();
+      dispatch(
+        showNotification({
+          message: "Products added successfully",
+          type: "success",
+        })
+      );
+      // router.push('/admin/products')
+    },
+    onError: () => {
+      dispatch(
+        showNotification({
+          message: "Error adding Product",
+          type: "error",
+        })
+      );
+    },
+  });
+
   // Handle form submission
-  const onSubmit = async (data: FieldValues) => {
+  const onSubmit = async (data: ProductCreateInput) => {
     try {
       if (images.length === 0) {
-        setError("images", { message: "At least one image is required" });
+        setError("imageUrls", { message: "At least one image is required" });
         return;
       }
 
       const imageUrls = await Promise.all(images.map(uploadImage));
 
-      await axios.post(`${server}/api/products`, {
+      addMutation({
         ...data,
         imageUrls,
         isFlashSale,
@@ -75,11 +108,6 @@ const AddPage = () => {
           type: "success",
         })
       );
-
-      queryClient.invalidateQueries({ queryKey: ["products"] });
-      reset();
-      setImages([]);
-      router.push("./");
     } catch (e) {
       console.error(e);
       dispatch(
@@ -92,10 +120,10 @@ const AddPage = () => {
   };
 
   return (
-    <div className="flex h-screen w-screen justify-center items-center">
+    <div className="flex justify-center items-center w-full h-full">
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="flex gap-8 px-8 m-auto py-4 border-1 border-neutral-300 shadow-xl flex-col"
+        className="flex gap-8 px-8 py-4 w-full border-neutral-300 shadow-xl flex-col"
       >
         <div className="flex flex-col gap-2">
           <h1 className="subHeading-admin">Add New Products</h1>
@@ -108,10 +136,10 @@ const AddPage = () => {
         <div className="flex flex-col gap-2">
           <label htmlFor="name">Product Name *</label>
           <input
-            {...register("name", { required: "Name is required" })}
+            {...register("name")}
             type="text"
             placeholder="Enter product name"
-            className="border px-2 py-1 rounded-lg"
+            className="input-field"
           />
           {errors.name && (
             <span className="text-base text-red-500">
@@ -124,12 +152,10 @@ const AddPage = () => {
         <div className="flex flex-col gap-2">
           <label htmlFor="description">Description *</label>
           <textarea
-            {...register("description", {
-              required: "Description is required",
-            })}
+            {...register("description")}
             rows={3}
             placeholder="Enter product description"
-            className="border px-2 py-1 rounded-lg"
+            className="input-field"
           />
           {errors.description && (
             <span className="text-base text-red-500">
@@ -143,10 +169,10 @@ const AddPage = () => {
           <div className="flex flex-col gap-2">
             <label htmlFor="price">Price($)</label>
             <input
-              {...register("price", { required: "Price is required" })}
+              {...register("price")}
               type="text"
               placeholder="0.00"
-              className="border px-2 py-1 rounded-lg"
+              className="input-field"
             />
             {errors.price && (
               <span className="text-base text-red-500">
@@ -157,12 +183,10 @@ const AddPage = () => {
           <div className="flex flex-col gap-2">
             <label htmlFor="discount">Discount Percent(%)</label>
             <input
-              {...register("discountPercent", {
-                required: "Discount is required",
-              })}
+              {...register("discountPercent")}
               type="text"
               placeholder="0%"
-              className="border px-2 py-1 rounded-lg"
+              className="input-field"
             />
             {errors.discountPercent && (
               <span className="text-base text-red-500">
@@ -177,10 +201,10 @@ const AddPage = () => {
           <div className="flex flex-col gap-2">
             <label htmlFor="stock">Stock Quantity</label>
             <input
-              {...register("stock", { required: "Stock quantity is required" })}
+              {...register("stock")}
               type="number"
               placeholder="0"
-              className="border px-2 py-1 rounded-lg"
+              className="input-field"
             />
             {errors.stock && (
               <span className="text-base text-red-500">
@@ -191,13 +215,13 @@ const AddPage = () => {
           <div className="flex flex-col gap-2 w-full">
             <label htmlFor="rating">Rating</label>
             <input
-              {...register("rating", { required: "Rating is required" })}
+              {...register("rating")}
               type="number"
               min={0}
               max={5}
               step="0.1"
               placeholder="Enter rating (0–5)"
-              className="border px-2 py-1 rounded-lg"
+              className="input-field"
             />
             {errors.rating && (
               <span className="text-base text-red-500">
@@ -215,11 +239,11 @@ const AddPage = () => {
             multiple
             accept="image/*"
             onChange={handleFileSelection}
-            className="border px-2 py-1 rounded-lg"
+            className="input-field"
           />
-          {errors.images && (
+          {errors.imageUrls && (
             <span className="text-base text-red-500">
-              {String(errors.images.message)}
+              {String(errors.imageUrls.message)}
             </span>
           )}
           <div className="flex gap-2 flex-wrap mt-2">
@@ -258,24 +282,7 @@ const AddPage = () => {
         </div>
 
         {/* Buttons */}
-        <div className="flex justify-around">
-          <button
-            type="button"
-            className="px-2 py-1 rounded-lg bg-red-500 text-neutral-100"
-            onClick={() => {
-              reset();
-              setImages([]);
-            }}
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="px-2 py-1 rounded-lg bg-green-500 text-neutral-100"
-          >
-            Add Product
-          </button>
-        </div>
+        <Button className="self-start" text="Submit" />
       </form>
     </div>
   );

@@ -23,6 +23,10 @@ const HomePage = () => {
     ssr: false,
   });
 
+  const SlideContent = dynamic(() => import("@/components/SlideContent"), {
+    ssr: false,
+  });
+
   useEffect(() => {
     setTargetTime(new Date(dbTimeString).getTime());
 
