@@ -13,7 +13,7 @@ const Registerpage = () => {
 
   const router = useRouter();
   const serverUrl =
-    process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:4000";
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
   const {
     register,
     setError,

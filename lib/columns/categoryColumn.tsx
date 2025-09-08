@@ -2,48 +2,45 @@
 
 import type { ColumnDef, Row } from "@tanstack/react-table";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
 import { isAxiosError } from "axios";
 import { PenSquare, Trash } from "lucide-react";
-import { ConfirmationModal } from "@/components/modals/ConfirmationModal";
 import Link from "next/link";
 import { useDispatch } from "react-redux";
-import { User } from "@/types/user";
+import { ConfirmationModal } from "@/components/modals/ConfirmationModal";
 import { showNotification } from "@/redux/NotificationSlice";
-import { deleteUser } from "../api/user";
+import { Category } from "@/types/category";
+import { deleteCategory } from "../api/category";
+import { useState } from "react";
 
-// Reusable Action Cell Component
-const UserActionCell = ({ row }: { row: Row<User> }) => {
-  const [showConfirmDeleteModal, setShowConfirmDeleteModal] =
-    useState<boolean>(false);
+const CategoryActionCell = ({ row }: { row: Row<Category> }) => {
+  const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
   const queryClient = useQueryClient();
   const dispatch = useDispatch();
 
   const deleteMutation = useMutation({
-    mutationFn: deleteUser,
+    mutationFn: deleteCategory,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
       dispatch(
         showNotification({
-          message: "User deleted successfully.",
-          type: "success"
+          message: "Category deleted successfully.",
+          type: "success",
         })
-      )
+      );
     },
     onError: (error) => {
       if (isAxiosError(error)) {
         const message =
           error.response?.statusText ||
-          "An error occurred while processing your request.";
-        dispatch(showNotification({
-          message: message,
-          type: "error"
-        }))
+          "An error occurred while deleting category.";
+        dispatch(showNotification({ message, type: "error" }));
       } else {
-        dispatch(showNotification({
-          message: "An unexpected error occurred. Please try again later.",
-          type: "error"
-        }))
+        dispatch(
+          showNotification({
+            message: "An unexpected error occurred. Please try again later.",
+            type: "error",
+          })
+        );
       }
     },
   });
@@ -57,7 +54,7 @@ const UserActionCell = ({ row }: { row: Row<User> }) => {
     <>
       <div className="flex gap-4">
         <Link
-          href={`/admin/users/${row.original.id}/edit`}
+          href={`/admin/categories/${row.original.id}/edit`}
           className="hover:bg-warning/10 hover:text-warning cursor-pointer rounded-full p-2 transition-colors duration-300"
         >
           <PenSquare size={16} />
@@ -74,16 +71,18 @@ const UserActionCell = ({ row }: { row: Row<User> }) => {
         isOpen={showConfirmDeleteModal}
         onClose={() => setShowConfirmDeleteModal(false)}
         onConfirm={handleDeleteConfirmation}
-        title="Delete User"
-        description="Are you sure you want to proceed?"
+        title="Delete Category"
+        description="Are you sure you want to delete this category?"
         confirmButtonVariant="danger"
       />
     </>
   );
 };
 
-// 📊 Column Definitions
-export const userColumn: ColumnDef<User>[] = [
+export default CategoryActionCell;
+
+
+export const categoryColumn: ColumnDef<Category>[] = [
   {
     accessorKey: "id",
     header: "ID",
@@ -93,21 +92,20 @@ export const userColumn: ColumnDef<User>[] = [
     header: "Name",
   },
   {
-    accessorKey: "email",
-    header: "Email Address",
-  },
-  {
-    accessorKey: "role",
-    header: "Role",
-  },
-  {
-    accessorKey: "phoneNumber",
-    header: "Phone Number",
+    accessorKey: "description",
+    header: "Description",
     cell: ({ row }) => {
-      const phoneNumber = row.getValue("phoneNumber") ?? " - "
-      return phoneNumber
-    }
-
+      const desc = row.getValue("description") as string | null;
+      return desc || " - ";
+    },
+  },
+  {
+    id: "productCount",
+    header: "Products",
+    cell: ({ row }) => {
+      // just use relation length
+      return row.original.products.length;
+    },
   },
   {
     accessorKey: "createdAt",
@@ -124,6 +122,6 @@ export const userColumn: ColumnDef<User>[] = [
   {
     id: "actions",
     header: "Actions",
-    cell: ({ row }) => <UserActionCell row={row} />,
+    cell: ({ row }) => <CategoryActionCell row={row} />,
   },
 ];

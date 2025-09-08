@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@/components/general/Button";
 import { addCategory } from "@/lib/api/category";
 import { showNotification } from "@/redux/NotificationSlice";
 import { CategoryInput, categorySchema } from "@/schema/category.schema";
@@ -21,7 +22,7 @@ const AddCategoryPage = () => {
   const dispatch = useDispatch();
   const router = useRouter();
 
-  const { mutate: addCategoryMutation } = useMutation({
+  const { mutate: addCategoryMutation, isPending } = useMutation({
     mutationFn: addCategory,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["categories"] });
@@ -32,7 +33,7 @@ const AddCategoryPage = () => {
           type: "success",
         })
       );
-      // router.push("/admin/categories");
+      router.push("/admin/categories");
     },
     onError: () => {
       dispatch(
@@ -48,10 +49,19 @@ const AddCategoryPage = () => {
     addCategoryMutation(data);
   };
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="w-[1280px] space-y-8">
-      <h1 className="heading-admin">Add Category</h1>
-      <div className="flex flex-col gap-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="section-container space-y-8">
+      <div className="flex justify-between">
+        <h1 className="heading-admin">Add Category</h1>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => router.push("/admin/categories")}
+          text="Back to Categories"
+        />
+      </div>
+      <div className="flex flex-col gap-4 form-block">
         <div className="flex flex-col gap-2">
+          <label className="label-text" htmlFor="name">Category Name</label>
           <input
             {...register("name")}
             type="text"
@@ -61,18 +71,21 @@ const AddCategoryPage = () => {
           {errors.name && <p className="text-error">{errors.name.message}</p>}
         </div>
         <div className="flex flex-col gap-2">
-          <input
+          <label className="label-text" htmlFor="description">Description</label>
+          <textarea
             {...register("description")}
-            type="text"
             placeholder="Description of the category"
-            className="input-field"
+            rows={6}
+            className="input-field resize-none"
           />
           {errors.description && (
             <p className="text-error">{errors.description.message}</p>
           )}
         </div>
       </div>
-      <button className="btn-primary">Save</button>
+      <div className="flex justify-end">
+        <Button type="submit" isLoading={isPending} loadingText="Saving" disabled={isPending} text="Save" />
+      </div>
     </form>
   );
 };

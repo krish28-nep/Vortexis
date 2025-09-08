@@ -1,9 +1,13 @@
+import { Category } from "./category";
+
 type Product = {
+    id: number
     name: string;
     description: string | null;
     price: number;
     discountPercent: number;
     imageUrls: string[]
-    rating: number;
+    averageRating: number;
     isFlashSale: boolean;
+    category: Category
 }

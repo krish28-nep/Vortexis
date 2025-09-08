@@ -66,7 +66,7 @@ const Navbar = () => {
   };
 
   return (
-    <div className="flex mx-8 laptop:mx-36 my-4 gap-6 items-center text-lg justify-between w-full">
+    <div className="mx-auto w-[1580px] flex gap-6 justify-between">
       <div className="flex items-center gap-2">
         <Hamburger className="laptop:hidden" />
         <h1 className="font-bold cursor-pointer">Exclusive</h1>
@@ -75,9 +75,9 @@ const Navbar = () => {
       <div className="hidden laptop:flex items-center gap-10">
         {[
           { label: "Home", path: "/" },
-          { label: "Contact", path: "/contact" },
+          { label: "Products", path: "/products" },
           { label: "About", path: "/about" },
-          { label: "Sign Up", path: "/auth/register" },
+          { label: "Contact", path: "/contact" },
         ].map(({ label, path }) => (
           <h1
             key={path}
@@ -97,15 +97,15 @@ const Navbar = () => {
             type="text"
             className="border-2 h-8 border-gray-500 py-2 px-4 pr-10 rounded-lg"
           />
-          <Search className="absolute right-27 top-1/2 transform -translate-y-1/2 cursor-pointer" />
-          <Heart />
-          <ShoppingCartIcon onClick={()=>router.push("/cart")} />
+          <Search size={16} className="absolute right-27 top-1/2 transform -translate-y-1/2 cursor-pointer" />
+          <Heart size={22} />
+          <ShoppingCartIcon size={22} onClick={() => router.push("/cart")} />
         </div>
 
         <div
           ref={dropdownRef}
           onClick={() => setModalOpen(!modalOpen)}
-          className="cursor-pointer w-7 h-7 relative"
+          className="cursor-pointer w-6 h-6 relative"
         >
           {user ? (
             <img src="/xboxLogo.png" className="rounded-full object-cover" />
@@ -116,7 +116,7 @@ const Navbar = () => {
           )}
 
           {modalOpen && (
-            <div className="absolute z-50 top-9 right-0 text-neutral-100 font-semibold bg-red-400 rounded-lg px-6 py-2 flex items-center justify-center">
+            <div className="absolute z-50 top-9 right-0 text-neutral-800 bg-neutral-50 shadow-xl border rounded-md py-2 flex items-center justify-center">
               {user ? (
                 <div className="flex flex-col items-center gap-1">
                   <div>Hi, {user.name}</div>
@@ -125,11 +125,11 @@ const Navbar = () => {
                   </button>
                 </div>
               ) : (
-                <div className="flex gap-4">
-                  <span onClick={() => router.push("/auth/register")}>
+                <div className="flex flex-col gap-2 px-2">
+                  <span className="hover:bg-neutral-200 px-4 py-2 rounded" onClick={() => router.push("/auth/register")}>
                     Register
                   </span>
-                  <span onClick={() => router.push("/auth/login")}>Login</span>
+                  <span className="hover:bg-neutral-200 px-4 py-2 rounded" onClick={() => router.push("/auth/login")}>Login</span>
                 </div>
               )}
             </div>

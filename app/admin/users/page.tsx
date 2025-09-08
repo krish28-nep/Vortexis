@@ -25,7 +25,7 @@ const UserTablePage = () => {
   });
 
   return (
-    <div className="mx-auto max-w-[1280px] space-y-8">
+    <div className="section-container space-y-8">
       <h1 className="heading-admin">Users Management</h1>
 
       <div className="flex items-center justify-between">
@@ -50,7 +50,7 @@ const UserTablePage = () => {
       ) : usersError ? (
         <p className="error-text">Failed to load users.</p>
       ) : (
-        <div className="section">
+        <div className="">
           <DataTable columns={userColumn} data={usersData ?? []} />
         </div>
       )}

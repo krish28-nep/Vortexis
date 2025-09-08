@@ -6,3 +6,8 @@ export type User = {
     isVerified: boolean;
     role: string;
 };
+
+export enum RoleEnum {
+    Admin = "Admin",
+    Customer = "Customer"
+}

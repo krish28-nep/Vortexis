@@ -5,7 +5,7 @@ import React, { useState } from "react";
 
 const Page = () => {
   const serverUrl =
-    process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:4000";
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
@@ -15,7 +15,7 @@ const Page = () => {
       const formData = new FormData();
       formData.append("file", file);
 
-      const res = await axios.post(`${serverUrl}/api/upload`, formData, {
+      const res = await axios.post(`${serverUrl}/upload`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

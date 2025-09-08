@@ -20,11 +20,11 @@ type ButtonProps = {
 };
 
 const variantClasses: Record<Variant, string> = {
-  primary: 'bg-secondary-500 hover:bg-secondary-200 text-neutral-light shadow-neutral shadow-sm',
-  neutral: 'bg-neutral-light hover:bg-neutral text-neutral-darker shadow-neutral shadow-sm',
-  outline: 'bg-transparent border border-neutral hover:bg-neutral/10 text-neutral-dark',
-  ghost: 'bg-transparent hover:bg-neutral-dark/10',
-  danger: 'bg-danger hover:bg-danger-dark text-neutral-light shadow-sm shadow-neutral',
+  primary: 'bg-secondary-500 hover:bg-secondary-200 text-neutral-100 shadow-neutral-400 shadow-sm',
+  neutral: 'bg-neutral-400 hover:bg-neutral-400 text-neutral-800 shadow-neutral-400 shadow-sm',
+  outline: 'bg-transparent border border-neutral-400 hover:bg-neutral-400/10 text-neutral-800',
+  ghost: 'bg-transparent hover:bg-neutral-800/10',
+  danger: 'bg-red-500 hover:bg-danger-800 text-neutral-100 shadow-sm shadow-neutral',
 };
 
 const Button: React.FC<ButtonProps> = ({

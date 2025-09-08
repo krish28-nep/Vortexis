@@ -1,9 +1,7 @@
 "use client";
 
-import Categoriescard from "@/components/Categoriescard";
 import FeatureCard from "@/components/FeatureCard";
 import NewArrivalCart from "@/components/NewArrivalCart";
-import SlideContent from "@/components/SlideContent";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import dynamic from "next/dynamic";
@@ -42,12 +40,12 @@ const HomePage = () => {
 
   const fetchCategories = async () => {
     const { data } = await axios.get(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/categories`
+      `${process.env.NEXT_PUBLIC_API_URL}/categories`
     );
     return data;
   };
 
-  const { data: categoryData} = useQuery({
+  const { data: categoryData } = useQuery({
     queryKey: ["categories"],
     queryFn: fetchCategories,
   });
@@ -79,7 +77,6 @@ const HomePage = () => {
           </p>
         </div>
       )}
-      <Categoriescard />
       <ProductRail
         title="This Month"
         subtitle="Best Selling Products"

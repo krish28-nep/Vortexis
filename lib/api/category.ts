@@ -3,6 +3,7 @@ import { axiosintance } from "../axiosinstance";
 
 export const fetchCategories = async () => {
     const { data } = await axiosintance.get('/categories');
+    console.log(data)
     return data.categories;
 };
 
@@ -24,5 +25,12 @@ export const updateCategory = async ({
 
 export const deleteCategory = async (id: number) => {
     const { data } = await axiosintance.delete(`/categories/${id}`);
+    return data.category;
+};
+
+export const fetchCategory = async (
+    id: number
+) => {
+    const { data } = await axiosintance.get(`/categories/${id}`);
     return data.category;
 };

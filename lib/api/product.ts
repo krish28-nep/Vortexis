@@ -26,3 +26,8 @@ export const deleteProduct = async (id: number) => {
   const { data } = await axiosintance.delete(`/products/${id}`);
   return data.product;
 };
+
+export const fetchProduct = async (id: number) => {
+  const { data } = await axiosintance.get(`/products/${id}`);
+  return data.product;
+};

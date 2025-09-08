@@ -26,8 +26,8 @@ export function middleware(req: NextRequest) {
     const isLoggedCustomerRoute = url.startsWith("/cus")
     const isAuthRoute = url.startsWith("/auth") || url === "/admin";
 
-    const isCustomer = decoded?.role === "customer";
-    const isAdmin = decoded?.role === "admin";
+    const isCustomer = decoded?.role === "Customer";
+    const isAdmin = decoded?.role === "Admin";
 
     if (isAdminRoute) {
         if (!isAdmin) {

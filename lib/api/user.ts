@@ -21,3 +21,8 @@ export const deleteUser = async (id: number) => {
     const { data } = await axiosintance.delete(`/users/${id}`)
     return data.user
 }
+
+export const fetchUser = async (id: number) => {
+    const { data } = await axiosintance.get(`/users/${id}`)
+    return data.user
+}
