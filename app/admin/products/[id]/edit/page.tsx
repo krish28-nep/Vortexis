@@ -80,10 +80,6 @@ const UpdatePage = () => {
 
 
   useEffect(() => {
-    console.log(errors)
-  }, [errors])
-
-  useEffect(() => {
     setValue("isFlashSale", isFlashSale)
   }, [setValue, isFlashSale])
 

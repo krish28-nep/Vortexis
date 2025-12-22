@@ -14,9 +14,8 @@ const SlideButtons = memo(({ option, onChange }: SlideButtonsProps) => {
         <button
           key={num}
           onClick={() => onChange(num)}
-          className={`rounded-full bg-primary-500 h-3 w-3 tablet:h-4 tablet:w-4 hover:scale-150 transition-all ease-in-out duration-300 ${
-            option === num ? "bg-secondary-400 border-2" : ""
-          }`}
+          className={`rounded-full bg-primary-500 h-3 w-3 tablet:h-4 tablet:w-4 hover:scale-150 transition-all ease-in-out duration-300 ${option === num ? "bg-secondary-400 border-2" : ""
+            }`}
         ></button>
       ))}
     </div>
@@ -95,7 +94,7 @@ const SlideContent = () => {
 
   return (
     <div
-      className={`w-full laptop:w-[75%] max-h-[271px] min-h-[271px] tablet:max-h-96 tablet:min-h-96 pt-8 relative text-primary-50 flex pl-10 laptop:pl-24 border-2 bg-black justify-between`}
+      className={`w-full laptop:w-[75%] max-h-[271px] min-h-[271px] tablet:max-h-96 tablet:min-h-96 pt-8 relative text-primary-50 flex pl-10 laptop:pl-24 border-2 bg-black justify-between overflow-hidden`}
     >
       <div key={option} className={`${slideClass} flex justify-between w-full`}>
         <div className="flex flex-col gap-3 tablet:gap-4 ">

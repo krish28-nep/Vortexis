@@ -6,6 +6,7 @@ import ReactQueryProvider from "@/utils/providers/ReactQueryProvider";
 import EndUserLayout from "@/components/layouts/EndUserLayout";
 import { Provider } from "react-redux";
 import { store } from "@/redux/store";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import AdminLayout from "@/components/layouts/AdminLayout";
 
 // export const metadata: Metadata = {
@@ -14,7 +15,7 @@ import AdminLayout from "@/components/layouts/AdminLayout";
 // };
 const geistSans = Geist({
   variable: "--font-geist-sans",
-subsets: ["latin"]
+  subsets: ["latin"]
 });
 
 const geistMono = Geist_Mono({
@@ -51,6 +52,7 @@ export default function RootLayout({
                 <EndUserLayout>{children}</EndUserLayout>
               )}
             </div>
+            <ReactQueryDevtools initialIsOpen={false} />
           </ReactQueryProvider>
         </Provider>
       </body>

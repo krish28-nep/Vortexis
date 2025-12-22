@@ -24,8 +24,8 @@ const Notification = () => {
 
   return (
     <div
-      className={`fixed z-50 top-4 right-4 flex items-center gap-2 w-80 px-4 py-2 rounded-lg font-semibold text-lg transition-transform duration-300 ${
-        visible ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0"
+      className={`fixed z-50 bottom-4 right-4 flex items-center gap-2 w-80 px-4 py-2 rounded-lg font-semibold text-lg transition-transform duration-300 ${
+        visible ? "translate-y-0 opacity-100" : "translate-x-10 opacity-0"
       } ${
         type === "success"
           ? "bg-green-400 text-neutral-100"

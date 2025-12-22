@@ -4,10 +4,11 @@ import { showNotification } from "@/redux/NotificationSlice";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
-import { useForm, FieldValues} from "react-hook-form";
+import { useForm, FieldValues } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import PhoneInput from "react-phone-number-input";
 import { FcGoogle } from "react-icons/fc";
+import { Button } from "@/components/general/Button";
 const Registerpage = () => {
   const [number, setNumber] = useState<string | undefined>();
 
@@ -24,7 +25,7 @@ const Registerpage = () => {
   const onSubmit = async (data: FieldValues) => {
     try {
       const emailResponse = await axios.post(
-        `${serverUrl}/api/users/checkEmail`,
+        `${serverUrl}/users/checkEmail`,
         { email: data.email }
       );
 
@@ -35,7 +36,7 @@ const Registerpage = () => {
         await axios.post(`${serverUrl}/auth/register`, {
           ...data,
           phoneNumber: number,
-          role: "customer",
+          role: "Customer",
         });
         dispatch(
           showNotification({
@@ -101,13 +102,8 @@ const Registerpage = () => {
             className="border-b-2 border-neutral-500 focus:outline-none focus:border-black py-2"
           />
         </div>
-        <button className="bg-red-500 px-2 py-1 text-xl text-neutral-200 cursor-pointer">
-          Create Account
-        </button>
-        <button className="border-1 px-2 py-1 text-xl flex relative justify-center cursor-pointer">
-          <FcGoogle size={30} className="absolute top-1.5 left-2" />
-          <h1 className="self-center">Sign Up With Google</h1>
-        </button>
+        <Button type="submit" text="Create Account" />
+
       </form>
       <h1 className="m-4 text-xl">Already Have An Account? Login</h1>
     </div>

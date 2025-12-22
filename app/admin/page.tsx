@@ -7,6 +7,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 import { showNotification } from "@/redux/NotificationSlice";
+import { axiosInstance } from "@/lib/axiosinstance";
 
 const Loginpage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -23,18 +24,13 @@ const Loginpage = () => {
 
   const onSubmit = async (data: FieldValues) => {
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,data
+      const response = await axiosInstance.post(
+        `/auth/login`, data
       );
-      console.log(response);
-      if(response){
-        localStorage.setItem("token", response.data.token);
-        document.cookie =`token=${response.data.token}; path=/;`
-      }
       dispatch(
         showNotification({
-          message:"Login Successfull",
-          type:"success"
+          message: "Login Successfull",
+          type: "success"
         })
       )
       router.push("/admin/dashboard");

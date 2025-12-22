@@ -1,48 +1,93 @@
+import { Product } from "@/types/product";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 import React from "react";
 import { CiHeart } from "react-icons/ci";
 import { FaRegEye, FaStar } from "react-icons/fa";
 import { LuStar } from "react-icons/lu";
 
-type Product = {
-  name: string;
-  price: number;
-  img: string;
-  discount: number;
+type ProductCardProps = {
+  product: Product;
 };
 
-const ProductCard: React.FC<Product> = ({ name, price, img, discount }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+  const imageUrl =
+    product.imageUrls && product.imageUrls.length > 0
+      ? product.imageUrls[0]
+      : "/placeholder.png";
+
+  // Render star ratings
+  const renderStars = (rating: number) => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        i <= rating ? (
+          <FaStar key={i} className="text-yellow-400" />
+        ) : (
+          <LuStar key={i} className="text-gray-300" />
+        )
+      );
+    }
+    return stars;
+  };
+
+  const router = useRouter()
+
+  const discountedPrice =
+    product.discountPercent > 0
+      ? (Number(product.price) * (1 - product.discountPercent / 100)).toFixed(2)
+      : null;
+
   return (
-    <div className="min-w-[14rem] max-w-[14rem] tablet:min-w-[18rem] tablet:max-w-[18rem]">
-      <div className="relative flex w-full flex-col bg-gray-200 pt-10 group transition-all transform ease-in-out duration-300">
-        <div className="absolute top-2 left-2 responsive-content rounded-lg text-neutral-100 bg-red-500 p-1 z-10">
-          -{discount}%
-        </div>
-        <div className="absolute top-0 right-0 text-2xl p-2 flex flex-col gap-2 z-10">
-          <div className="bg-neutral-100 rounded-full p-1">
-            <CiHeart />
+    <div className="min-w-[14rem] max-w-[14rem] tablet:min-w-[18rem] tablet:max-w-[18rem] bg-white rounded-2xl shadow-md hover:shadow-lg transition duration-300 overflow-hidden group">
+      {/* Product Image */}
+      <div className="relative w-full overflow-hidden">
+        {product.discountPercent > 0 && (
+          <div className="absolute top-2 left-2 rounded-md text-white bg-red-500 px-2 py-1 text-xs font-semibold z-10">
+            -{product.discountPercent}%
           </div>
-          <div className="bg-neutral-100 rounded-full p-1">
-            <FaRegEye />
-          </div>
+        )}
+
+        {/* Hover Icons */}
+        <div className="absolute top-2 right-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+          <button onClick={() => router.push(`/products/${product.id}`)} className="bg-white cursor-pointer rounded-full p-2 hover:bg-gray-100 shadow">
+            <FaRegEye size={18} />
+          </button>
         </div>
-        <img
-          className="object-cover h-40 hover:scale-140 transtion-all transform ease-in-out duration-300 z-0"
-          src={img}
-          alt={name}
+
+        <Image
+          className="object-cover w-full h-48 group-hover:scale-105 transition-transform duration-300"
+          src={`${process.env.NEXT_PUBLIC_STATIC_URL}${imageUrl}`}
+          alt={product.name}
+          width={300}
+          height={200}
         />
-        <div className="bg-black text-neutral-100 py-1 flex justify-center scale-0 group-hover:scale-100 transform transition-all ease-in-out duration-300 cursor-pointer">
-          Add To Cart
-        </div>
       </div>
-      <div className="px-4 pb-6">
-        <h2 className="font-semibold">{name}</h2>
-        <span className="text-red-400">${price}</span>
-        <div className="flex gap-1 text-yellow-500 text-xl">
-          <FaStar />
-          <FaStar />
-          <FaStar />
-          <LuStar />
-          <LuStar />
+
+      {/* Product Info */}
+      <div className="p-4">
+        <h2 className="font-semibold text-sm tablet:text-base truncate mb-1">
+          {product.name}
+        </h2>
+
+        <div className="flex items-center gap-2">
+          {discountedPrice ? (
+            <>
+              <span className="text-red-500 font-bold">${discountedPrice}</span>
+              <span className="text-gray-400 line-through text-sm">
+                ${Number(product.price).toFixed(2)}
+              </span>
+            </>
+          ) : (
+            <span className="text-gray-800 font-bold">
+              ${Number(product.price).toFixed(2)}
+            </span>
+          )}
+        </div>
+
+        {/* Rating */}
+        <div className="flex gap-1 text-sm mt-2">
+          {renderStars(Math.round(product.averageRating))}
         </div>
       </div>
     </div>

@@ -11,9 +11,9 @@ export function middleware(req: NextRequest) {
     const url = req.nextUrl.pathname;
 
     const token = req.cookies.get("token")?.value;
-
+    
     let decoded: DecodedData | null = null;
-
+    
     if (token) {
         try {
             decoded = jwtDecode<DecodedData>(token);

@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { jwtDecode } from "jwt-decode";
 import {
   CircleUser,
   Hamburger,
@@ -8,17 +7,13 @@ import {
   ShoppingCartIcon,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import Cookies from "js-cookie";
+import { axiosInstance } from "@/lib/axiosinstance";
+import { useAuth } from "@/hooks/useAuth";
 // import Image from "next/image"; // Uncomment if using <Image />
-
-interface TokenPayload {
-  id: string;
-  name: string;
-}
 
 const Navbar = () => {
   const router = useRouter();
-  const [user, setUser] = useState<TokenPayload | null>(null);
+  const { user } = useAuth()
   const [modalOpen, setModalOpen] = useState(false);
   const pathname = usePathname();
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -43,30 +38,18 @@ const Navbar = () => {
     };
   }, []);
 
-  useEffect(() => {
-    const storedToken = Cookies.get("token");
-    if (storedToken) {
-      try {
-        const decoded = jwtDecode<TokenPayload>(storedToken);
-        setUser(decoded);
-      } catch (error) {
-        console.error(error);
-        setUser(null);
-      }
-    } else {
-      setUser(null);
+  const handleLogout = async () => {
+    try {
+      await axiosInstance.post("/users/logout", {}, { withCredentials: true });
+      setModalOpen(false);
+      router.push("/");
+    } catch (error) {
+      console.error("Logout failed", error);
     }
-  }, [pathname]);
-
-  const handleLogout = () => {
-    Cookies.remove("token");
-    setUser(null);
-    setModalOpen(false);
-    router.push("/");
   };
 
   return (
-    <div className="mx-auto w-[1580px] flex gap-6 justify-between">
+    <div className="mx-auto w-[1580px] flex gap-6 text-lg justify-between">
       <div className="flex items-center gap-2">
         <Hamburger className="laptop:hidden" />
         <h1 className="font-bold cursor-pointer">Exclusive</h1>
@@ -95,11 +78,12 @@ const Navbar = () => {
         <div className="hidden laptop:flex items-center gap-6 relative">
           <input
             type="text"
-            className="border-2 h-8 border-gray-500 py-2 px-4 pr-10 rounded-lg"
+            placeholder="Search ..."
+            className="border-2 h-8 border-neutral-300 hover:border-neutral-600 active:border-neutral-600 py-2 px-4 pr-10 rounded-lg"
           />
           <Search size={16} className="absolute right-27 top-1/2 transform -translate-y-1/2 cursor-pointer" />
-          <Heart size={22} />
-          <ShoppingCartIcon size={22} onClick={() => router.push("/cart")} />
+          <Heart onClick={() => router.push('/wishlists')} className="cursor-pointer" size={22} />
+          <ShoppingCartIcon size={22} onClick={() => router.push("/cart")} className="cursor-pointer" />
         </div>
 
         <div
@@ -118,8 +102,9 @@ const Navbar = () => {
           {modalOpen && (
             <div className="absolute z-50 top-9 right-0 text-neutral-800 bg-neutral-50 shadow-xl border rounded-md py-2 flex items-center justify-center">
               {user ? (
-                <div className="flex flex-col items-center gap-1">
+                <div className="flex flex-col min-w-[150px] items-center gap-1">
                   <div>Hi, {user.name}</div>
+                  <span onClick={()=>router.push('/my-orders')}>My Order</span>
                   <button onClick={handleLogout} className="cursor-pointer hover:text-neutral-300" >
                     Logout
                   </button>

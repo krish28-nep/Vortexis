@@ -1,203 +1,179 @@
-'use client';
+"use client";
 
-import ButtonComponents from '@/components/ButtonComponents';
-import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
-
-interface CartItem {
-    _id: string;
-    name: string;
-    price: number;
-    quantity: number;
-    image: string;
-}
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import CartItemCard from "@/components/general/CartItemCard";
+import { Button } from "@/components/general/Button";
+import { useQuery } from "@tanstack/react-query";
+import { fetchCartItems } from "@/lib/api/cart";
+import Spinner from "@/components/Spinner";
+import { ShoppingCart } from "lucide-react";
+import { CartItem } from "@/types/cartItem";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useAuth } from "@/hooks/useAuth";
 
 const Page = () => {
     const router = useRouter();
+    const [selectedIds, setSelectedIds] = useState<number[]>([]);
+    const [loading, setLoading] = useState(false);
+    const { user } = useAuth();
 
-    const [cartItems, setCartItems] = useState<CartItem[]>([
-        {
-            _id: '1',
-            name: 'LCD Monitor',
-            price: 650,
-            quantity: 1,
-            image: '/oneplusHero.png',
-        },
-    ]);
+    if (!user) {
+        return (
+            <div className="flex min-h-[65vh] items-center justify-center bg-gray-50 dark:bg-neutral-900 px-4">
+                <div className="w-full max-w-md rounded-xl bg-white dark:bg-neutral-800 p-8 shadow-lg text-center">
+                    <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">
+                        Login Required
+                    </h2>
+                    <p className="text-gray-600 dark:text-gray-400 mb-6">
+                        Please login to view and manage your shopping cart.
+                    </p>
+                    <Button
+                        text="Go to Login"
+                        onClick={() => router.push("/auth/login")}
+                        className="w-full"
+                    />
+                </div>
+            </div>
+        );
+    }
 
-    const updateQuantity = (id: string, quantity: number) => {
-        setCartItems(prev =>
-            prev.map(item =>
-                item._id === id ? { ...item, quantity: quantity } : item
-            )
+    const {
+        data: cartItems,
+        isLoading: cartItemsLoading,
+        isError: cartItemsError,
+    } = useQuery<CartItem[]>({
+        queryKey: ["cartItems"],
+        queryFn: fetchCartItems,
+        enabled: !!user, // only fetch if logged in
+    });
+
+    if (cartItemsLoading) return <Spinner />;
+
+    if (cartItemsError) {
+        return (
+            <div className="p-6 flex flex-col gap-6">
+                <h2 className="text-2xl font-semibold">Shopping Cart</h2>
+                <p>Failed to load cart. Please try again later.</p>
+            </div>
+        );
+    }
+
+    // --- selection logic ---
+    const toggleSelect = (id: number) => {
+        setSelectedIds((prev) =>
+            prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
         );
     };
 
-    const updateCart = () => {
-        console.log('Cart updated:', cartItems);
-        // You could re-fetch or sync cart here
+    const toggleSelectAll = () => {
+        if (selectedIds.length === cartItems!.length) {
+            setSelectedIds([]);
+        } else {
+            setSelectedIds(cartItems!.map((item) => item.id));
+        }
     };
 
-    const submitHandler = () => {
-        console.log('Coupon applied');
-        // Handle coupon logic here
-    };
+    const selectedItems =
+        cartItems?.filter((item) => selectedIds.includes(item.id)) ?? [];
 
-    const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-    const shipping:number = subtotal > 0 ? 0 : 0; // you can make this dynamic, e.g., free over $100
+    const subtotal = selectedItems.reduce((acc, item) => {
+        const price = Number(item.product.price);
+        const discount = item.product.discountPercent ?? 0;
+        const finalPrice = price * (1 - discount / 100);
+        return acc + finalPrice * item.quantity;
+    }, 0);
+
+    const shipping = subtotal > 0 ? 0 : 0;
     const total = subtotal + shipping;
 
+    const handleProcessToCheckout = () => {
+        if (!selectedIds.length) return;
+        setLoading(true);
+        localStorage.setItem("selectedCartItemsId", JSON.stringify(selectedIds));
+        router.push("/checkout");
+    };
 
     return (
-        <div className="cart-wrap pt-[80px]">
-            {/* table header */}
-            <div className="table-title flex gap-5 py-[24px] px-[40px] shadow-[0px_1px_13px_0px_#0000000D] items-center">
-                <div className="title flex-1">
-                    <span className="text-black text-lg font-semibold">Product</span>
-                </div>
-                <div className="title flex-1 text-center">
-                    <span className="text-black text-lg font-semibold">Price</span>
-                </div>
-                <div className="title flex-1 text-center">
-                    <span className="text-black text-lg font-semibold">Quantity</span>
-                </div>
-                <div className="title flex-1 text-end">
-                    <span className="text-black text-lg font-semibold">Subtotal</span>
-                </div>
-            </div>
+        <div className="p-6 flex w-full h-full flex-col gap-6">
+            <h2 className="text-2xl font-semibold">Shopping Cart</h2>
 
-            {/* cart items */}
-            <div className="product-details-wrap">
-                {cartItems.map(item => {
-                    const subTotal = item.price * item.quantity;
-
-                    return (
-                        <div
-                            key={item._id}
-                            className="product-details flex gap-5 mt-[40px] py-[24px] px-[40px] shadow-[0px_1px_13px_0px_#0000000D] items-center"
-                        >
-                            <div className="product-info flex-1 flex gap-[20px] items-center">
-                                <div className="img-holder flex items-center relative">
-                                    <span
-                                        className="remove-icon w-[18px] h-[18px] grid place-items-center absolute rounded-[50%] top-[-5px] left-[-5px] mr-4 bg-red-700 cursor-pointer"
-                                        onClick={() => updateQuantity(item._id, 0)}
-                                    >
-                                        <svg
-                                            width="8"
-                                            height="8"
-                                            viewBox="0 0 8 8"
-                                            fill="none"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                            <path
-                                                d="M1 7L4 4M7 1L3.99943 4M3.99943 4L1 1M4 4L7 7"
-                                                stroke="white"
-                                                strokeWidth="2"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                            />
-                                        </svg>
-                                    </span>
-                                    <img
-                                        src={item.image}
-                                        className="h-[54px] w-[54px] object-contain"
-                                        alt={item.name}
-                                    />
-                                </div>
-                                <span className="title text-black">{item.name}</span>
-                            </div>
-
-                            <div className="product-price text-center flex-1">
-                                <span className="text-black">${item.price}</span>
-                            </div>
-
-                            <div className="product-quantity text-center flex-1">
-                                <input
-                                    type="number"
-                                    className="border border-[#00000066] rounded-[4px] max-w-[72px] p-2"
-                                    min={1}
-                                    value={item.quantity}
-                                    onChange={e => {
-                                        const value = e.target.value.trim();
-                                        if (value && Number(value) > 0) {
-                                            updateQuantity(item._id, Number(value));
-                                        }
-                                    }}
+            <div className="flex flex-col lg:flex-row gap-16">
+                <div className="flex flex-col gap-4 flex-1">
+                    {cartItems && cartItems.length > 0 ? (
+                        <>
+                            <div className="flex items-center gap-2 mb-2">
+                                <Checkbox
+                                    checked={selectedIds.length === cartItems.length}
+                                    onCheckedChange={toggleSelectAll}
                                 />
+                                <span className="text-sm text-gray-600 dark:text-gray-300">
+                                    Select All
+                                </span>
                             </div>
 
-                            <div className="product-subtotal text-end flex-1">
-                                <span className="text-black">${subTotal}</span>
+                            {cartItems.map((item) => (
+                                <div
+                                    key={item.id}
+                                    className="flex items-start gap-3 border-b border-neutral-200 dark:border-neutral-800 pb-4"
+                                >
+                                    <Checkbox
+                                        checked={selectedIds.includes(item.id)}
+                                        onCheckedChange={() => toggleSelect(item.id)}
+                                        className="mt-2"
+                                    />
+                                    <CartItemCard variant="cart" item={item} />
+                                </div>
+                            ))}
+                        </>
+                    ) : (
+                        <div className="flex flex-col items-center justify-center gap-4 py-16 border border-dashed rounded-2xl bg-gray-50 dark:bg-gray-900">
+                            <div className="flex items-center justify-center w-20 h-20 rounded-full bg-blue-100 dark:bg-blue-900/30">
+                                <ShoppingCart className="w-10 h-10 text-blue-500" />
                             </div>
+                            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                                Your Cart is Empty
+                            </h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 text-center max-w-md">
+                                Looks like you haven’t added anything yet. Start exploring our
+                                products and add your favorites to the cart.
+                            </p>
+                            <Button
+                                text="Continue Shopping"
+                                onClick={() => router.push("/products")}
+                            />
                         </div>
-                    );
-                })}
-            </div>
-
-            {/* buttons */}
-            <div className="btn-wrap flex items-center justify-between mt-6">
-                <ButtonComponents
-                    content="Return To Shop"
-                    bg_color="#FFF"
-                    color="#000"
-                    border_color="#00000080"
-                    onClick={() => router.push('/')}
-                />
-                <ButtonComponents
-                    content="Update Cart"
-                    bg_color="#FFF"
-                    color="#000"
-                    border_color="#00000080"
-                    onClick={updateCart}
-                />
-            </div>
-
-            {/* subtotal */}
-            {/* Subtotal section with the fix */}
-            <div className="cart-total-wrap flex gap-6 justify-between mt-10">
-                <form onSubmit={(e) => { e.preventDefault(); submitHandler(); }}>
-                    <div className="coupon-wrap flex gap-2">
-                        <input
-                            type="text"
-                            placeholder="Coupon Code"
-                            className="px-6 py-4 border border-black text-black rounded-sm"
-                        />
-                        <ButtonComponents
-                            content="Apply Coupon"
-                            bg_color="#DB4444"
-                            color="#fff"
-                            border_color="#DB4444"
-                            onClick={submitHandler}
-                        />
-                    </div>
-                </form>
-
-                <div className="total-box border border-black rounded-sm py-8 px-6 max-w-[470px] w-full">
-                    <h3 className="title font-medium mb-4 text-xl">Cart Total</h3>
-                    <div className="space-y-4">
-                        <div className="flex justify-between border-b border-black pb-2">
-                            <span>Subtotal:</span>
-                            <span className="price">${subtotal.toFixed(2)}</span>
-                        </div>
-                        <div className="flex justify-between border-b border-black pb-2">
-                            <span>Shipping:</span>
-                            <span className="price">{shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}</span>
-                        </div>
-                        <div className="flex justify-between pb-2">
-                            <span>Total:</span>
-                            <span className="price">${total.toFixed(2)}</span>
-                        </div>
-                    </div>
-                    <div className="btn-wrap flex justify-center mt-4">
-                        <ButtonComponents
-                            content="Proceed to checkout"
-                            bg_color="#DB4444"
-                            color="#fff"
-                            border_color="#DB4444"
-                            onClick={() => router.push('/')}
-                        />
-                    </div>
+                    )}
                 </div>
+
+                {/* Order Summary */}
+                {cartItems && cartItems.length > 0 && (
+                    <div className="w-full lg:w-[400px] flex-shrink-0 p-4 rounded-xl 
+                         bg-white dark:bg-neutral-900 
+                         border border-neutral-300 dark:border-neutral-700 shadow-sm
+                         sticky top-6 self-start h-fit"
+                    >
+                        <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
+                        <div className="flex justify-between mb-2">
+                            <span>Subtotal:</span>
+                            <span>${subtotal.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between mb-2">
+                            <span>Shipping:</span>
+                            <span>${shipping.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between font-bold text-lg border-t border-neutral-200 dark:border-neutral-700 pt-2">
+                            <span>Total:</span>
+                            <span>${total.toFixed(2)}</span>
+                        </div>
+                        <Button
+                            text="Proceed to Checkout"
+                            onClick={handleProcessToCheckout}
+                            disabled={!selectedIds.length || loading}
+                            className="mt-4 w-full"
+                        />
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -24,6 +24,10 @@
     .subHeading {
         @apply text-2xl font-bold text-tertiary-900;
     }
+ 
+    .title-text {
+        @apply text-2xl font-bold;
+    }
 
     .subHeading-admin2 {
         @apply text-2xl font-bold text-secondary-900;
@@ -51,6 +55,10 @@
 
     .form-block {
         @apply border border-neutral-100 rounded-2xl shadow-md bg-neutral-50 p-6
+    }
+
+    .sm-text{
+        @apply text-sm text-neutral-700
     }
 }
 
