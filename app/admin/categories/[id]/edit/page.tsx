@@ -1,19 +1,21 @@
 "use client";
-import { updateCategory } from "@/lib/api/category";
+import { Button } from "@/components/general/Button";
+import { fetchCategory, updateCategory } from "@/lib/api/category";
 import { showNotification } from "@/redux/NotificationSlice";
 import {
   UpdateCategoryInput,
   updateCategorySchema,
 } from "@/schema/category.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
-import React from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useParams, useRouter } from "next/navigation";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 
 const EditCategoryPage = () => {
   const { id: categoryId } = useParams();
+  const router = useRouter()
   const {
     register,
     reset,
@@ -26,7 +28,16 @@ const EditCategoryPage = () => {
   const queryClient = useQueryClient();
   const dispatch = useDispatch();
 
-  const { mutate: updateCategoryMutation } = useMutation({
+  const { data: categoryData, isLoading: categoryDataLoading, isError: categoryDataError } = useQuery({
+    queryKey: ["categories", Number(categoryId)],
+    queryFn: () => fetchCategory(Number(categoryId))
+  })
+
+  useEffect(() => {
+    reset(categoryData)
+  }, [reset, categoryData])
+
+  const { mutate: updateCategoryMutation, isPending } = useMutation({
     mutationFn: updateCategory,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["categories"] });
@@ -52,13 +63,19 @@ const EditCategoryPage = () => {
     updateCategoryMutation({ id: Number(categoryId), dataToSend: data });
   };
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="max-w-[1280px] space-y-8"
-    >
-      <h1 className="heading-admin">Edit Category</h1>
-      <div className="flex flex-col gap-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="section-container space-y-8">
+      <div className="flex justify-between">
+        <h1 className="heading-admin">Update Category</h1>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => router.push("/admin/categories")}
+          text="Back to Categories"
+        />
+      </div>
+      <div className="flex flex-col gap-4 form-block">
         <div className="flex flex-col gap-2">
+          <label className="label-text" htmlFor="name">Category Name</label>
           <input
             {...register("name")}
             type="text"
@@ -68,18 +85,21 @@ const EditCategoryPage = () => {
           {errors.name && <p className="text-error">{errors.name.message}</p>}
         </div>
         <div className="flex flex-col gap-2">
-          <input
+          <label className="label-text" htmlFor="description">Description</label>
+          <textarea
             {...register("description")}
-            type="text"
             placeholder="Description of the category"
-            className="input-field"
+            rows={6}
+            className="input-field resize-none"
           />
           {errors.description && (
             <p className="text-error">{errors.description.message}</p>
           )}
         </div>
       </div>
-      <button className="btn-primary">Update</button>
+      <div className="flex justify-end">
+        <Button type="submit" isLoading={isPending} loadingText="Saving" disabled={isPending} text="Save" />
+      </div>
     </form>
   );
 };

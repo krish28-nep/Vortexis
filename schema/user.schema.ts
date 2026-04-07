@@ -1,15 +1,11 @@
+import { RoleEnum } from '@/types/user';
 import { z } from 'zod';
-
-export enum RoleEnum {
-  admin = 'admin',
-  customer = 'customer',
-}
 
 export const userCreateSchema = z
   .object({
     name: z.string().min(1, { message: 'Name is required' }),
     email: z.string().email({ message: 'Invalid email format' }),
-    avatarUrl: z.string().url({ message: 'Invalid avatar URL' }).optional().or(z.literal('')),
+    avatarUrl: z.string().optional(),
     password: z.string().min(6, { message: 'Password must be at least 6 characters long' }),
     confirmPassword: z.string().min(6, { message: 'Confirm password is required' }),
     phoneNumber: z.string().optional().or(z.literal('')),

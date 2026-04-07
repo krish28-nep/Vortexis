@@ -1,10 +1,9 @@
 "use client";
 
 import { showNotification } from "@/redux/NotificationSlice";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,53 +13,56 @@ import {
   productCreateSchema,
 } from "@/schema/product.schema";
 import { addProduct } from "@/lib/api/product";
+import { fetchCategories } from "@/lib/api/category";
+import Spinner from "@/components/Spinner";
+import { Category } from "@/types/category";
+import { ReusableDropdown } from "@/components/general/ReusableDropDown";
+import { Plus, Upload, X } from "lucide-react";
+import Image from "next/image";
+import { uploadImages } from "@/lib/api/upload";
 
 const AddPage = () => {
   const [isFlashSale, setIsFlashSale] = useState(false);
   const dispatch = useDispatch();
   const [images, setImages] = useState<File[]>([]);
-  const server = process.env.NEXT_PUBLIC_SERVER_URL;
   const queryClient = useQueryClient();
   const router = useRouter();
+  const [previews, setPreviews] = useState<string[]>([]);
 
   const {
     register,
-    formState: { errors, isSubmitting },
+    formState: { errors },
     reset,
     setValue,
     handleSubmit,
-    setError,
   } = useForm<ProductCreateInput>({
     resolver: zodResolver(productCreateSchema),
   });
 
-  // Create preview URLs
-  const createPreviewUrls = (files: File[]) => {
-    return files.map((file) => URL.createObjectURL(file));
+
+  useEffect(() => {
+    setValue("isFlashSale", isFlashSale)
+  }, [setValue, isFlashSale])
+
+  const { data: categoriesData = [], isLoading, isError } = useQuery<Category[]>({
+    queryKey: ["categories"],
+    queryFn: fetchCategories,
+  });
+
+  const handleRemoveImage = (indexToRemove: number) => {
+    const updatedImages = images.filter((_, i) => i !== indexToRemove);
+    const updatedPreviews = previews.filter((_, i) => i !== indexToRemove);
+    setImages(updatedImages);
+    setPreviews(updatedPreviews);
   };
 
-  // Upload a single image file
-  const uploadImage = async (imageFile: File) => {
-    try {
-      const formData = new FormData();
-      formData.append("file", imageFile);
-      const res = await axios.post(`${server}/api/upload`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      return res.data.file.path; // Adjust based on your API response
-    } catch (e) {
-      console.error("Image upload failed", e);
-      throw e;
-    }
-  };
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newFiles = Array.from(e.target.files || []);
+    const updatedFiles = [...images, ...newFiles];
+    setImages(updatedFiles);
 
-  // Handle file input
-  const handleFileSelection = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = e.target.files;
-    if (!selectedFiles || selectedFiles.length === 0) return;
-    setImages((prev) => [...prev, ...Array.from(selectedFiles)]);
+    const newPreviews = newFiles.map((file) => URL.createObjectURL(file));
+    setPreviews((prev) => [...prev, ...newPreviews]);
   };
 
   const { mutate: addMutation } = useMutation({
@@ -68,223 +70,194 @@ const AddPage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
       reset();
-      dispatch(
-        showNotification({
-          message: "Products added successfully",
-          type: "success",
-        })
-      );
-      // router.push('/admin/products')
-    },
-    onError: () => {
-      dispatch(
-        showNotification({
-          message: "Error adding Product",
-          type: "error",
-        })
-      );
-    },
-  });
-
-  // Handle form submission
-  const onSubmit = async (data: ProductCreateInput) => {
-    try {
-      if (images.length === 0) {
-        setError("imageUrls", { message: "At least one image is required" });
-        return;
-      }
-
-      const imageUrls = await Promise.all(images.map(uploadImage));
-
-      addMutation({
-        ...data,
-        imageUrls,
-        isFlashSale,
-      });
-
+      setImages([]);
+      setPreviews([]);
       dispatch(
         showNotification({
           message: "Product added successfully",
           type: "success",
         })
       );
-    } catch (e) {
-      console.error(e);
+      router.push("/admin/products");
+    },
+    onError: () => {
       dispatch(
         showNotification({
           message: "Error adding product",
           type: "error",
         })
       );
+    },
+  });
+
+  const onSubmit = async (data: ProductCreateInput) => {
+    try {
+      const imageUrls = await uploadImages(images);
+
+      addMutation({
+        ...data,
+        imageUrls,
+        isFlashSale,
+      });
+    } catch (e) {
+      console.error(e);
+      dispatch(
+        showNotification({
+          message: "Error uploading images",
+          type: "error",
+        })
+      );
     }
   };
 
-  return (
-    <div className="flex justify-center items-center w-full h-full">
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="flex gap-8 px-8 py-4 w-full border-neutral-300 shadow-xl flex-col"
-      >
-        <div className="flex flex-col gap-2">
-          <h1 className="subHeading-admin">Add New Products</h1>
-          <h2 className="text-neutral-500">
-            Fill in the details below to add a new product to your inventory
-          </h2>
-        </div>
+  if (isLoading) return <Spinner />;
+  if (isError) return <p>Failed to load categories</p>;
+  if (!categoriesData.length) return <p>No category data</p>;
 
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="section-container">
+      <div className="flex justify-between">
+        <h1 className="subHeading-admin">Add New Products</h1>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => router.push("/admin/products")}
+          text="Back to Products"
+        />
+      </div>
+
+      <div className="form-block flex flex-col gap-4">
         {/* Product Name */}
         <div className="flex flex-col gap-2">
-          <label htmlFor="name">Product Name *</label>
+          <label>Product Name *</label>
           <input
             {...register("name")}
-            type="text"
-            placeholder="Enter product name"
             className="input-field"
+            placeholder="Enter product name"
           />
-          {errors.name && (
-            <span className="text-base text-red-500">
-              {String(errors.name.message)}
-            </span>
-          )}
+          {errors.name && <span className="error-text">{errors.name.message}</span>}
         </div>
 
         {/* Description */}
         <div className="flex flex-col gap-2">
-          <label htmlFor="description">Description *</label>
+          <label>Description *</label>
           <textarea
             {...register("description")}
             rows={3}
+            className="input-field"
             placeholder="Enter product description"
-            className="input-field"
           />
-          {errors.description && (
-            <span className="text-base text-red-500">
-              {String(errors.description.message)}
-            </span>
-          )}
+          {errors.description && <span className="error-text">{errors.description.message}</span>}
         </div>
 
-        {/* Price and Discount */}
+        {/* Price + Discount */}
         <div className="flex gap-4">
-          <div className="flex flex-col gap-2">
-            <label htmlFor="price">Price($)</label>
-            <input
-              {...register("price")}
-              type="text"
-              placeholder="0.00"
-              className="input-field"
-            />
-            {errors.price && (
-              <span className="text-base text-red-500">
-                {String(errors.price.message)}
-              </span>
-            )}
+          <div className="flex flex-col gap-2 flex-1">
+            <label>Price($) *</label>
+            <input {...register("price", { valueAsNumber: true })} type="number" placeholder="0.00" className="input-field" />
+            {errors.price && <span className="error-text">{errors.price.message}</span>}
           </div>
-          <div className="flex flex-col gap-2">
-            <label htmlFor="discount">Discount Percent(%)</label>
-            <input
-              {...register("discountPercent")}
-              type="text"
-              placeholder="0%"
-              className="input-field"
-            />
-            {errors.discountPercent && (
-              <span className="text-base text-red-500">
-                {String(errors.discountPercent.message)}
-              </span>
-            )}
+          <div className="flex flex-col gap-2 flex-1">
+            <label>Discount Percent(%)</label>
+            <input {...register("discountPercent", { valueAsNumber: true })} type="number" placeholder="0%" className="input-field" />
+            {errors.discountPercent && <span className="error-text">{errors.discountPercent.message}</span>}
           </div>
         </div>
 
-        {/* Stock and Rating */}
+        {/* Stock + Category */}
         <div className="flex gap-4">
-          <div className="flex flex-col gap-2">
-            <label htmlFor="stock">Stock Quantity</label>
-            <input
-              {...register("stock")}
-              type="number"
-              placeholder="0"
-              className="input-field"
-            />
-            {errors.stock && (
-              <span className="text-base text-red-500">
-                {String(errors.stock.message)}
-              </span>
-            )}
+          <div className="flex flex-col gap-2 flex-1">
+            <label>Stock Quantity *</label>
+            <input {...register("stock", { valueAsNumber: true })} type="number" placeholder="0" className="input-field" />
+            {errors.stock && <span className="error-text">{errors.stock.message}</span>}
           </div>
-          <div className="flex flex-col gap-2 w-full">
-            <label htmlFor="rating">Rating</label>
-            <input
-              {...register("rating")}
-              type="number"
-              min={0}
-              max={5}
-              step="0.1"
-              placeholder="Enter rating (0–5)"
-              className="input-field"
+          <div className="flex flex-col gap-2 flex-1">
+            <label>Category *</label>
+            <ReusableDropdown
+              items={categoriesData.map((c) => c.name)}
+              onSelect={(name) => {
+                const selected = categoriesData.find((c) => c.name === name);
+                if (selected) setValue("categoryId", selected.id, { shouldValidate: true });
+              }}
             />
-            {errors.rating && (
-              <span className="text-base text-red-500">
-                {String(errors.rating.message)}
-              </span>
-            )}
+            {errors.categoryId && <span className="error-text">{errors.categoryId.message}</span>}
           </div>
         </div>
 
-        {/* Image Upload */}
-        <div className="flex flex-col gap-2">
-          <label htmlFor="image">Product Images *</label>
-          <input
-            type="file"
-            multiple
-            accept="image/*"
-            onChange={handleFileSelection}
-            className="input-field"
-          />
-          {errors.imageUrls && (
-            <span className="text-base text-red-500">
-              {String(errors.imageUrls.message)}
-            </span>
-          )}
-          <div className="flex gap-2 flex-wrap mt-2">
-            {images.map((file, idx) => (
-              <img
-                key={idx}
-                src={URL.createObjectURL(file)}
-                alt={`preview-${idx}`}
-                className="w-20 h-20 object-cover rounded"
+        {/* Images */}
+        <div className="label-input-group">
+          <label className="label-text">Product Images</label>
+          {previews.length > 0 ? (
+            <div className="flex flex-wrap gap-4">
+              {previews.map((preview, index) => (
+                <div key={index} className="relative size-28">
+                  <Image src={preview} alt="preview" width={100} height={100} className="size-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveImage(index)}
+                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              ))}
+              <label
+                htmlFor="product-images"
+                className="border-dashed border flex size-28 items-center justify-center cursor-pointer"
+              >
+                <Plus size={24} />
+              </label>
+              <input
+                id="product-images"
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleFileChange}
+                className="hidden"
               />
-            ))}
-          </div>
+            </div>
+          ) : (
+            <label
+              htmlFor="product-images"
+              className="border-dashed border flex flex-col items-center justify-center p-4 cursor-pointer"
+            >
+              <Upload size={32} />
+              <span>Click to browse</span>
+              <input
+                id="product-images"
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleFileChange}
+                className="hidden"
+              />
+            </label>
+          )}
+          {errors.imageUrls && <span className="error-text">{errors.imageUrls.message}</span>}
         </div>
 
         {/* Flash Sale Toggle */}
         <div className="flex justify-between items-center border rounded-lg px-2 py-1">
-          <div className="flex flex-col gap-1">
-            <label htmlFor="flash">Flash Sale</label>
-            <p className="text-sm text-neutral-500">
-              Mark this product as flash sale item
-            </p>
+          <div>
+            <label>Flash Sale</label>
+            <p className="text-sm text-neutral-500">Mark this product as flash sale item</p>
           </div>
           <button
             type="button"
-            onClick={() => setIsFlashSale(!isFlashSale)}
-            className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ${
-              isFlashSale ? "bg-green-500" : "bg-gray-300"
-            }`}
+            onClick={() => setIsFlashSale((prev) => !prev)}
+            className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors ${isFlashSale ? "bg-green-500" : "bg-gray-300"
+              }`}
           >
             <div
-              className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${
-                isFlashSale ? "translate-x-6" : "translate-x-0"
-              }`}
-            ></div>
+              className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${isFlashSale ? "translate-x-6" : "translate-x-0"
+                }`}
+            />
           </button>
         </div>
+      </div>
 
-        {/* Buttons */}
-        <Button className="self-start" text="Submit" />
-      </form>
-    </div>
+      <Button type="submit" className="self-start" text="Submit" />
+    </form>
   );
 };
 

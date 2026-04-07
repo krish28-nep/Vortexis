@@ -64,7 +64,7 @@ export function DataTable<TData, TValue>({
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
-            className="bg-neutral-lightest shadow-neutral border-none shadow-md"
+            className="bg-neutral-100 shadow-neutral border-none shadow-md"
           >
             {table
               .getAllColumns()

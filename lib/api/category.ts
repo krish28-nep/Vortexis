@@ -1,13 +1,13 @@
 import { CategoryInput, UpdateCategoryInput } from "@/schema/category.schema";
-import { axiosintance } from "../axiosinstance";
+import { axiosInstance } from "../axiosinstance";
 
 export const fetchCategories = async () => {
-    const { data } = await axiosintance.get('/categories');
+    const { data } = await axiosInstance.get('/categories');
     return data.categories;
 };
 
 export const addCategory = async (dataToSend: CategoryInput) => {
-    const { data } = await axiosintance.post('/categories', dataToSend);
+    const { data } = await axiosInstance.post('/categories', dataToSend);
     return data.category;
 };
 
@@ -18,11 +18,18 @@ export const updateCategory = async ({
     id: number;
     dataToSend: UpdateCategoryInput;
 }) => {
-    const { data } = await axiosintance.patch(`/categories/${id}`, dataToSend);
+    const { data } = await axiosInstance.patch(`/categories/${id}`, dataToSend);
     return data.category;
 };
 
 export const deleteCategory = async (id: number) => {
-    const { data } = await axiosintance.delete(`/categories/${id}`);
+    const { data } = await axiosInstance.delete(`/categories/${id}`);
+    return data.category;
+};
+
+export const fetchCategory = async (
+    id: number
+) => {
+    const { data } = await axiosInstance.get(`/categories/${id}`);
     return data.category;
 };

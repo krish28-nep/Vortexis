@@ -1,6 +1,6 @@
 "use client";
+import { axiosInstance } from "@/lib/axiosinstance";
 import { showNotification } from "@/redux/NotificationSlice";
-import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FieldValues, useForm } from "react-hook-form";
@@ -21,36 +21,19 @@ const LoginPage = () => {
 
   const dispatch = useDispatch();
 
+
   const onSubmit = async (data: FieldValues) => {
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/auth/login`,
-        data
-      );
-      reset();
-      dispatch(
-        showNotification({
-          message: "Login Successfullt",
-          type: "success",
-        })
-      );
-      if (response) {
-        console.log(response);
-        localStorage.setItem("token", response.data.token);
-        document.cookie = `token=${response.data.token}; path=/;`;
-      }
-      router.push("/")
-    } catch (error:any) {
-      dispatch(
-        showNotification({
-          message: "Failed to Login Account",
-          type: "error",
-        })
-      );
-      console.log(error);
-      setError("password", { message: error.response.data.error });
+      await axiosInstance.post("/auth/login", data, { withCredentials: true });
+
+      dispatch(showNotification({ message: "Login Successful", type: "success" }));
+      location.href="/"
+    } catch (error: any) {
+      dispatch(showNotification({ message: error.response?.data?.error || "Login failed", type: "error" }));
+      setError("password", { message: error.response?.data?.error || "Login failed" });
     }
   };
+
 
   return (
     <div className="flex h-full w-full items-center justify-center my-10">

@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { jwtDecode } from "jwt-decode";
 import {
   CircleUser,
   Hamburger,
@@ -8,17 +7,13 @@ import {
   ShoppingCartIcon,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import Cookies from "js-cookie";
+import { axiosInstance } from "@/lib/axiosinstance";
+import { useAuth } from "@/hooks/useAuth";
 // import Image from "next/image"; // Uncomment if using <Image />
-
-interface TokenPayload {
-  id: string;
-  name: string;
-}
 
 const Navbar = () => {
   const router = useRouter();
-  const [user, setUser] = useState<TokenPayload | null>(null);
+  const { user } = useAuth()
   const [modalOpen, setModalOpen] = useState(false);
   const pathname = usePathname();
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -43,30 +38,18 @@ const Navbar = () => {
     };
   }, []);
 
-  useEffect(() => {
-    const storedToken = Cookies.get("token");
-    if (storedToken) {
-      try {
-        const decoded = jwtDecode<TokenPayload>(storedToken);
-        setUser(decoded);
-      } catch (error) {
-        console.error(error);
-        setUser(null);
-      }
-    } else {
-      setUser(null);
+  const handleLogout = async () => {
+    try {
+      await axiosInstance.post("/users/logout", {}, { withCredentials: true });
+      setModalOpen(false);
+      router.push("/");
+    } catch (error) {
+      console.error("Logout failed", error);
     }
-  }, [pathname]);
-
-  const handleLogout = () => {
-    Cookies.remove("token");
-    setUser(null);
-    setModalOpen(false);
-    router.push("/");
   };
 
   return (
-    <div className="flex mx-8 laptop:mx-36 my-4 gap-6 items-center text-lg justify-between w-full">
+    <div className="mx-auto w-[1580px] flex gap-6 text-lg justify-between">
       <div className="flex items-center gap-2">
         <Hamburger className="laptop:hidden" />
         <h1 className="font-bold cursor-pointer">Exclusive</h1>
@@ -75,9 +58,9 @@ const Navbar = () => {
       <div className="hidden laptop:flex items-center gap-10">
         {[
           { label: "Home", path: "/" },
-          { label: "Contact", path: "/contact" },
+          { label: "Products", path: "/products" },
           { label: "About", path: "/about" },
-          { label: "Sign Up", path: "/auth/register" },
+          { label: "Contact", path: "/contact" },
         ].map(({ label, path }) => (
           <h1
             key={path}
@@ -95,17 +78,18 @@ const Navbar = () => {
         <div className="hidden laptop:flex items-center gap-6 relative">
           <input
             type="text"
-            className="border-2 h-8 border-gray-500 py-2 px-4 pr-10 rounded-lg"
+            placeholder="Search ..."
+            className="border-2 h-8 border-neutral-300 hover:border-neutral-600 active:border-neutral-600 py-2 px-4 pr-10 rounded-lg"
           />
-          <Search className="absolute right-27 top-1/2 transform -translate-y-1/2 cursor-pointer" />
-          <Heart />
-          <ShoppingCartIcon onClick={()=>router.push("/cart")} />
+          <Search size={16} className="absolute right-27 top-1/2 transform -translate-y-1/2 cursor-pointer" />
+          <Heart onClick={() => router.push('/wishlists')} className="cursor-pointer" size={22} />
+          <ShoppingCartIcon size={22} onClick={() => router.push("/cart")} className="cursor-pointer" />
         </div>
 
         <div
           ref={dropdownRef}
           onClick={() => setModalOpen(!modalOpen)}
-          className="cursor-pointer w-7 h-7 relative"
+          className="cursor-pointer w-6 h-6 relative"
         >
           {user ? (
             <img src="/xboxLogo.png" className="rounded-full object-cover" />
@@ -116,20 +100,21 @@ const Navbar = () => {
           )}
 
           {modalOpen && (
-            <div className="absolute z-50 top-9 right-0 text-neutral-100 font-semibold bg-red-400 rounded-lg px-6 py-2 flex items-center justify-center">
+            <div className="absolute z-50 top-9 right-0 text-neutral-800 bg-neutral-50 shadow-xl border rounded-md py-2 flex items-center justify-center">
               {user ? (
-                <div className="flex flex-col items-center gap-1">
+                <div className="flex flex-col min-w-[150px] items-center gap-1">
                   <div>Hi, {user.name}</div>
+                  <span onClick={()=>router.push('/my-orders')}>My Order</span>
                   <button onClick={handleLogout} className="cursor-pointer hover:text-neutral-300" >
                     Logout
                   </button>
                 </div>
               ) : (
-                <div className="flex gap-4">
-                  <span onClick={() => router.push("/auth/register")}>
+                <div className="flex flex-col gap-2 px-2">
+                  <span className="hover:bg-neutral-200 px-4 py-2 rounded" onClick={() => router.push("/auth/register")}>
                     Register
                   </span>
-                  <span onClick={() => router.push("/auth/login")}>Login</span>
+                  <span className="hover:bg-neutral-200 px-4 py-2 rounded" onClick={() => router.push("/auth/login")}>Login</span>
                 </div>
               )}
             </div>
