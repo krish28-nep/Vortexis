@@ -21,19 +21,26 @@ const LoginPage = () => {
 
   const dispatch = useDispatch();
 
-
   const onSubmit = async (data: FieldValues) => {
     try {
       await axiosInstance.post("/auth/login", data, { withCredentials: true });
 
-      dispatch(showNotification({ message: "Login Successful", type: "success" }));
-      location.href="/"
+      dispatch(
+        showNotification({ message: "Login Successful", type: "success" }),
+      );
+      location.href = "/";
     } catch (error: any) {
-      dispatch(showNotification({ message: error.response?.data?.error || "Login failed", type: "error" }));
-      setError("password", { message: error.response?.data?.error || "Login failed" });
+      dispatch(
+        showNotification({
+          message: error.response?.data?.error || "Login failed",
+          type: "error",
+        }),
+      );
+      setError("password", {
+        message: error.response?.data?.error || "Login failed",
+      });
     }
   };
-
 
   return (
     <div className="flex h-full w-full items-center justify-center my-10">
@@ -41,7 +48,7 @@ const LoginPage = () => {
         onSubmit={handleSubmit(onSubmit)}
         className="flex flex-col gap-6 px-6 py-8 w-1/3 text-xl"
       >
-        <h1 className="text-4xl font-bold">Login in to Exclusive</h1>
+        <h1 className="text-4xl font-bold">Login in to Vortexis</h1>
 
         <div className="flex flex-col gap-2">
           <label htmlFor="email" className="text-2xl font-semibold">

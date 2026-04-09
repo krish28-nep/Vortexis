@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProducts } from "@/lib/api/product";
 import { Button } from "@/components/general/Button";
@@ -23,6 +23,20 @@ const ProductTablePage = () => {
     queryKey: ["products"],
     queryFn: () => fetchProducts(),
   });
+
+  const filteredProducts = useMemo(() => {
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return productsData ?? [];
+
+    return (productsData ?? []).filter((p) => {
+      const name = p.name?.toLowerCase() ?? "";
+      const description = p.description?.toLowerCase() ?? "";
+      const categoryName = p.category?.name?.toLowerCase() ?? "";
+      return (
+        name.includes(q) || description.includes(q) || categoryName.includes(q)
+      );
+    });
+  }, [productsData, searchTerm]);
 
   return (
     <div className="section-container space-y-8">
@@ -50,7 +64,7 @@ const ProductTablePage = () => {
         <p className="error-text">Failed to load products.</p>
       ) : (
         <div>
-          <DataTable columns={productColumn} data={productsData ?? []} />
+          <DataTable columns={productColumn} data={filteredProducts} />
         </div>
       )}
     </div>

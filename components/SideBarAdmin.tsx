@@ -60,7 +60,7 @@ const Sidebar: React.FC = () => {
         <div className="p-6 border-b border-slate-700">
           <h1 className="text-xl font-bold flex items-center gap-2">
             <Star className="w-6 h-6 text-secondary-400" />
-            Exclusive
+            Vortexis
           </h1>
         </div>
 
@@ -75,10 +75,11 @@ const Sidebar: React.FC = () => {
                 <li key={item.id}>
                   <button
                     onClick={() => router.push(`/admin/${item.id}`)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-left ${isActive
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-left ${
+                      isActive
                         ? "bg-secondary-600 text-white shadow-lg"
                         : "text-neutral-300 hover:bg-primary-700 hover:text-neutral-500"
-                      }`}
+                    }`}
                   >
                     <IconComponent className="w-5 h-5" />
                     <span className="font-medium">{item.label}</span>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchUsers } from "@/lib/api/user";
 import { Button } from "@/components/general/Button";
@@ -23,6 +23,18 @@ const UserTablePage = () => {
     queryKey: ["users"],
     queryFn: () => fetchUsers(),
   });
+
+  const filteredUsers = useMemo(() => {
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return usersData ?? [];
+
+    return (usersData ?? []).filter((u) => {
+      const name = u.name?.toLowerCase() ?? "";
+      const email = u.email?.toLowerCase() ?? "";
+      const role = u.role?.toLowerCase() ?? "";
+      return name.includes(q) || email.includes(q) || role.includes(q);
+    });
+  }, [usersData, searchTerm]);
 
   return (
     <div className="section-container space-y-8">
@@ -51,7 +63,7 @@ const UserTablePage = () => {
         <p className="error-text">Failed to load users.</p>
       ) : (
         <div className="">
-          <DataTable columns={userColumn} data={usersData ?? []} />
+          <DataTable columns={userColumn} data={filteredUsers} />
         </div>
       )}
     </div>

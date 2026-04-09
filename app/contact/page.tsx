@@ -33,8 +33,8 @@ const ContactPage = () => {
             Fill out out form and we will contact <br />
             you within 24 hours.
           </h1>
-          <h1>Emails: customer@exclusive.com</h1>
-          <h1>Emails: support@exclusive.com</h1>
+          <h1>Emails: customer@vortexis.com</h1>
+          <h1>Emails: support@vortexis.com</h1>
         </div>
         <div className="flex flex-col gap-6 rounded-2xl border border-neutral-200 p-8">
           <div className="flex gap-4">

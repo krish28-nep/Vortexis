@@ -5,6 +5,7 @@ import React from "react";
 import { CiHeart } from "react-icons/ci";
 import { FaRegEye, FaStar } from "react-icons/fa";
 import { LuStar } from "react-icons/lu";
+import { formatNrs } from "@/lib/utils";
 
 type ProductCardProps = {
   product: Product;
@@ -25,13 +26,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           <FaStar key={i} className="text-yellow-400" />
         ) : (
           <LuStar key={i} className="text-gray-300" />
-        )
+        ),
       );
     }
     return stars;
   };
 
-  const router = useRouter()
+  const router = useRouter();
 
   const discountedPrice =
     product.discountPercent > 0
@@ -50,7 +51,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
         {/* Hover Icons */}
         <div className="absolute top-2 right-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
-          <button onClick={() => router.push(`/products/${product.id}`)} className="bg-white cursor-pointer rounded-full p-2 hover:bg-gray-100 shadow">
+          <button
+            onClick={() => router.push(`/products/${product.id}`)}
+            className="bg-white cursor-pointer rounded-full p-2 hover:bg-gray-100 shadow"
+          >
             <FaRegEye size={18} />
           </button>
         </div>
@@ -73,14 +77,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <div className="flex items-center gap-2">
           {discountedPrice ? (
             <>
-              <span className="text-red-500 font-bold">${discountedPrice}</span>
+              <span className="text-red-500 font-bold">
+                {formatNrs(discountedPrice)}
+              </span>
               <span className="text-gray-400 line-through text-sm">
-                ${Number(product.price).toFixed(2)}
+                {formatNrs(product.price)}
               </span>
             </>
           ) : (
             <span className="text-gray-800 font-bold">
-              ${Number(product.price).toFixed(2)}
+              {formatNrs(product.price)}
             </span>
           )}
         </div>

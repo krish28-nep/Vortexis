@@ -1,4 +1,3 @@
-
 import React from "react";
 import { IconType } from "react-icons";
 import { CiDollar, CiGift, CiShop } from "react-icons/ci";
@@ -66,15 +65,15 @@ const Aboutpage = () => {
         <div className="w-130">
           <h1 className="text-4xl mb-4">Our Story</h1>
           <p className="text-justify">
-            Launced in 2015, Exclusive is South Asia’s premier online shopping
+            Launced in 2015, Vortexis is South Asias premier online shopping
             makterplace with an active presense in Bangladesh. Supported by wide
-            range of tailored marketing, data and service solutions, Exclusive
+            range of tailored marketing, data and service solutions, Vortexis
             has 10,500 sallers and 300 brands and serves 3 millioons customers
             across the region. <br />
             <br />
-            Exclusive has more than 1 Million products to offer, growing at a
-            very fast. Exclusive offers a diverse assotment in categories
-            ranging from consumer.
+            Vortexis has more than 1 Million products to offer, growing at a
+            very fast. Vortexis offers a diverse assotment in categories ranging
+            from consumer.
           </p>
         </div>
         <div>

@@ -14,8 +14,9 @@ const SlideButtons = memo(({ option, onChange }: SlideButtonsProps) => {
         <button
           key={num}
           onClick={() => onChange(num)}
-          className={`rounded-full bg-primary-500 h-3 w-3 tablet:h-4 tablet:w-4 hover:scale-150 transition-all ease-in-out duration-300 ${option === num ? "bg-secondary-400 border-2" : ""
-            }`}
+          className={`rounded-full bg-primary-500 h-3 w-3 tablet:h-4 tablet:w-4 hover:scale-150 transition-all ease-in-out duration-300 ${
+            option === num ? "bg-secondary-400 border-2" : ""
+          }`}
         ></button>
       ))}
     </div>
@@ -60,7 +61,7 @@ const SlideContent = () => {
       heroToRender = {
         logo: "/xboxLogo.png",
         title: "Xbox New Series",
-        offer: `Play More, Win More <br />Exclusive Deals`,
+        offer: `Play More, Win More <br />Vortexis Deals`,
         hero_endFrame: "xboxHero.png",
       };
       break;
@@ -68,7 +69,7 @@ const SlideContent = () => {
       heroToRender = {
         logo: "/ps5Logo.png",
         title: "PlayStation 5",
-        offer: `Exclusive Bundles <br />Now Available`,
+        offer: `Vortexis Bundles <br />Now Available`,
         hero_endFrame: "ps5Hero.png",
       };
       break;

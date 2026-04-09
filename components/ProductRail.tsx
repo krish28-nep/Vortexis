@@ -12,21 +12,45 @@ type ProductRailsProps = {
   dbTimeString: string;
 };
 
-const ProductRail: React.FC<ProductRailsProps> = ({ title, subtitle, dbTimeString }) => {
+const ProductRail: React.FC<ProductRailsProps> = ({
+  title,
+  subtitle,
+  dbTimeString,
+}) => {
   const targetTime = new Date(dbTimeString).getTime();
 
-  const [isEnded, setIsEnded] = useState(false);
-  const [remainingTime, setRemainingTime] = useState(targetTime - Date.now());
+  const isFlashSalesRail = subtitle === "Flash Sales";
+
+  const [isEnded, setIsEnded] = useState(() =>
+    isFlashSalesRail ? targetTime <= Date.now() : false,
+  );
+  const [remainingTime, setRemainingTime] = useState(() =>
+    isFlashSalesRail ? Math.max(0, targetTime - Date.now()) : 0,
+  );
 
   const intervalRef = useRef<NodeJS.Timeout | number>(0);
 
-  const { data: productsData, isLoading, isError } = useQuery<Product[]>({
-    queryKey: ["products"],
-    queryFn: fetchProducts,
+  const {
+    data: productsData,
+    isLoading,
+    isError,
+  } = useQuery<Product[]>({
+    queryKey: ["products", isFlashSalesRail ? "flash-sales" : subtitle],
+    queryFn: () =>
+      isFlashSalesRail ? fetchProducts({ isFlashSale: true }) : fetchProducts(),
+    enabled: !isFlashSalesRail || !isEnded,
   });
 
   // Countdown Timer
   useEffect(() => {
+    if (!isFlashSalesRail) return;
+
+    if (targetTime <= Date.now()) {
+      setRemainingTime(0);
+      setIsEnded(true);
+      return;
+    }
+
     if (!isEnded) {
       intervalRef.current = setInterval(() => {
         const timeLeft = targetTime - Date.now();
@@ -40,13 +64,23 @@ const ProductRail: React.FC<ProductRailsProps> = ({ title, subtitle, dbTimeStrin
       }, 1000);
     }
     return () => clearInterval(intervalRef.current);
-  }, [isEnded, targetTime]);
+  }, [isEnded, isFlashSalesRail, targetTime]);
 
   // Time formatting
-  const days = String(Math.floor(remainingTime / (1000 * 60 * 60 * 24))).padStart(2, "0");
-  const hr = String(Math.floor((remainingTime / (1000 * 60 * 60)) % 24)).padStart(2, "0");
-  const min = String(Math.floor((remainingTime / (1000 * 60)) % 60)).padStart(2, "0");
-  const sec = String(Math.floor((remainingTime / 1000) % 60)).padStart(2, "0");
+  const safeRemainingTime = Math.max(0, remainingTime);
+  const days = String(
+    Math.floor(safeRemainingTime / (1000 * 60 * 60 * 24)),
+  ).padStart(2, "0");
+  const hr = String(
+    Math.floor((safeRemainingTime / (1000 * 60 * 60)) % 24),
+  ).padStart(2, "0");
+  const min = String(
+    Math.floor((safeRemainingTime / (1000 * 60)) % 60),
+  ).padStart(2, "0");
+  const sec = String(Math.floor((safeRemainingTime / 1000) % 60)).padStart(
+    2,
+    "0",
+  );
 
   const ScrollRef = useRef<HTMLDivElement>(null);
 
@@ -66,6 +100,8 @@ const ProductRail: React.FC<ProductRailsProps> = ({ title, subtitle, dbTimeStrin
   if (isLoading) return <div>Loading products...</div>;
   if (isError) return <div>Failed to load products</div>;
 
+  const shouldShowProducts = !isFlashSalesRail || !isEnded;
+
   return (
     <div className="flex flex-col">
       <h1 className="border-l-15 border-red-500 rounded-sm px-2 responsive-content py-1">
@@ -76,15 +112,30 @@ const ProductRail: React.FC<ProductRailsProps> = ({ title, subtitle, dbTimeStrin
         {/* Subtitle + Flash Sale Timer */}
         <div className="responsive-subtitle py-4 font-semibold flex gap-5 justify-between laptop:gap-35">
           <h1>{subtitle}</h1>
-          {subtitle === "Flash Sales" && (
+          {isFlashSalesRail && isEnded && (
+            <div className="text-neutral-500">Flash Sale has ended.</div>
+          )}
+          {isFlashSalesRail && !isEnded && (
             <div className="flex gap-2 laptop:gap-4">
-              <div><h1 className="time-heading">Days</h1><h1>{days}</h1></div>
+              <div>
+                <h1 className="time-heading">Days</h1>
+                <h1>{days}</h1>
+              </div>
               <div className="mt-6 text-red-400">:</div>
-              <div><h1 className="time-heading">Hours</h1><h1>{hr}</h1></div>
+              <div>
+                <h1 className="time-heading">Hours</h1>
+                <h1>{hr}</h1>
+              </div>
               <div className="mt-6 text-red-400">:</div>
-              <div><h1 className="time-heading">Minutes</h1><h1>{min}</h1></div>
+              <div>
+                <h1 className="time-heading">Minutes</h1>
+                <h1>{min}</h1>
+              </div>
               <div className="mt-6 text-red-400">:</div>
-              <div><h1 className="time-heading">Seconds</h1><h1>{sec}</h1></div>
+              <div>
+                <h1 className="time-heading">Seconds</h1>
+                <h1>{sec}</h1>
+              </div>
             </div>
           )}
         </div>
@@ -103,10 +154,26 @@ const ProductRail: React.FC<ProductRailsProps> = ({ title, subtitle, dbTimeStrin
       </div>
 
       {/* Product Rail */}
-      <div ref={ScrollRef} className="flex gap-4 tablet:gap-10 overflow-auto scrollbar-hide">
-        {productsData?.map((product, index) => (
-          <ProductCard key={product.id || index} product={product} />
-        ))}
+      <div
+        ref={ScrollRef}
+        className="flex gap-4 tablet:gap-10 overflow-auto scrollbar-hide"
+      >
+        {isFlashSalesRail && isEnded && (
+          <div className="text-neutral-500">
+            Come back tomorrow for new deals.
+          </div>
+        )}
+        {isFlashSalesRail &&
+          shouldShowProducts &&
+          productsData?.length === 0 && (
+            <div className="text-neutral-500">
+              No flash sale products available.
+            </div>
+          )}
+        {shouldShowProducts &&
+          productsData?.map((product, index) => (
+            <ProductCard key={product.id || index} product={product} />
+          ))}
       </div>
 
       {/* View All */}

@@ -7,16 +7,22 @@ import {
   ShoppingCartIcon,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { axiosInstance } from "@/lib/axiosinstance";
 import { useAuth } from "@/hooks/useAuth";
+import { fetchProductSuggestions, ProductSuggestion } from "@/lib/api/product";
+import Link from "next/link";
 // import Image from "next/image"; // Uncomment if using <Image />
 
 const Navbar = () => {
   const router = useRouter();
-  const { user } = useAuth()
+  const { user } = useAuth();
   const [modalOpen, setModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
   const pathname = usePathname();
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
 
   const isActive = (path: string) =>
     pathname === path
@@ -30,6 +36,13 @@ const Navbar = () => {
         !dropdownRef.current.contains(event.target as Node)
       ) {
         setModalOpen(false);
+      }
+
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
+        setSearchOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -48,11 +61,42 @@ const Navbar = () => {
     }
   };
 
+  const runSearch = () => {
+    const trimmed = searchTerm.trim();
+    if (!trimmed) {
+      router.push("/products");
+      setSearchOpen(false);
+      return;
+    }
+    router.push(`/products?search=${encodeURIComponent(trimmed)}`);
+    setSearchOpen(false);
+  };
+
+  const getImageUrl = (url?: string) => {
+    if (!url) return undefined;
+    if (url.startsWith("/uploads")) {
+      return `${process.env.NEXT_PUBLIC_STATIC_URL}${url}`;
+    }
+    return url;
+  };
+
+  const searchQuery = searchTerm.trim();
+  const { data: searchResults = [], isFetching: searchFetching } = useQuery<
+    ProductSuggestion[]
+  >({
+    queryKey: ["product-search", searchQuery],
+    queryFn: () => fetchProductSuggestions(searchQuery, 6),
+    enabled: searchOpen && searchQuery.length >= 2,
+    staleTime: 10_000,
+  });
+
   return (
     <div className="mx-auto w-[1580px] flex gap-6 text-lg justify-between">
       <div className="flex items-center gap-2">
-        <Hamburger className="laptop:hidden" />
-        <h1 className="font-bold cursor-pointer">Exclusive</h1>
+        <Link href="/">
+          <Hamburger className="laptop:hidden" />
+          <h1 className="font-bold cursor-pointer">Vortexis</h1>
+        </Link>
       </div>
 
       <div className="hidden laptop:flex items-center gap-10">
@@ -66,7 +110,7 @@ const Navbar = () => {
             key={path}
             onClick={() => router.push(path)}
             className={`cursor-pointer pb-1 transition-all duration-300 ease-in-out ${isActive(
-              path
+              path,
             )}`}
           >
             {label}
@@ -75,15 +119,79 @@ const Navbar = () => {
       </div>
 
       <div className="flex items-center gap-6">
-        <div className="hidden laptop:flex items-center gap-6 relative">
-          <input
-            type="text"
-            placeholder="Search ..."
-            className="border-2 h-8 border-neutral-300 hover:border-neutral-600 active:border-neutral-600 py-2 px-4 pr-10 rounded-lg"
+        <div className="hidden laptop:flex items-center gap-6">
+          <div ref={searchRef} className="relative">
+            <input
+              type="text"
+              placeholder="Search ..."
+              className="border-2 h-8 border-neutral-300 hover:border-neutral-600 active:border-neutral-600 py-2 px-4 pr-10 rounded-lg"
+              value={searchTerm}
+              onFocus={() => setSearchOpen(true)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setSearchOpen(true);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  runSearch();
+                }
+              }}
+            />
+            <Search
+              size={16}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+              onClick={runSearch}
+            />
+
+            {searchOpen && searchQuery.length >= 2 && (
+              <div className="absolute z-50 mt-2 w-full text-neutral-800 bg-neutral-50 shadow-xl border border-neutral-300 rounded-lg overflow-hidden">
+                {searchFetching ? (
+                  <div className="px-4 py-2 text-sm">Loading...</div>
+                ) : searchResults.length ? (
+                  searchResults.map((p) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      className="w-full text-left px-4 py-2 hover:bg-neutral-200"
+                      onClick={() => {
+                        router.push(`/products/${p.id}`);
+                        setSearchOpen(false);
+                        setSearchTerm("");
+                      }}
+                    >
+                      <div className="flex items-center gap-3">
+                        {getImageUrl(p.imageUrl) ? (
+                          <img
+                            src={getImageUrl(p.imageUrl)}
+                            alt={p.name}
+                            className="size-8 rounded object-cover border border-neutral-200"
+                          />
+                        ) : (
+                          <div className="size-8 rounded bg-neutral-200 border border-neutral-200" />
+                        )}
+                        <span className="truncate">{p.name}</span>
+                      </div>
+                    </button>
+                  ))
+                ) : (
+                  <div className="px-4 py-2 text-sm text-neutral-600">
+                    No products found
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          <Heart
+            onClick={() => router.push("/wishlists")}
+            className="cursor-pointer"
+            size={22}
           />
-          <Search size={16} className="absolute right-27 top-1/2 transform -translate-y-1/2 cursor-pointer" />
-          <Heart onClick={() => router.push('/wishlists')} className="cursor-pointer" size={22} />
-          <ShoppingCartIcon size={22} onClick={() => router.push("/cart")} className="cursor-pointer" />
+          <ShoppingCartIcon
+            size={22}
+            onClick={() => router.push("/cart")}
+            className="cursor-pointer"
+          />
         </div>
 
         <div
@@ -104,17 +212,30 @@ const Navbar = () => {
               {user ? (
                 <div className="flex flex-col min-w-[150px] items-center gap-1">
                   <div>Hi, {user.name}</div>
-                  <span onClick={()=>router.push('/my-orders')}>My Order</span>
-                  <button onClick={handleLogout} className="cursor-pointer hover:text-neutral-300" >
+                  <span onClick={() => router.push("/my-orders")}>
+                    My Order
+                  </span>
+                  <button
+                    onClick={handleLogout}
+                    className="cursor-pointer hover:text-neutral-300"
+                  >
                     Logout
                   </button>
                 </div>
               ) : (
                 <div className="flex flex-col gap-2 px-2">
-                  <span className="hover:bg-neutral-200 px-4 py-2 rounded" onClick={() => router.push("/auth/register")}>
+                  <span
+                    className="hover:bg-neutral-200 px-4 py-2 rounded"
+                    onClick={() => router.push("/auth/register")}
+                  >
                     Register
                   </span>
-                  <span className="hover:bg-neutral-200 px-4 py-2 rounded" onClick={() => router.push("/auth/login")}>Login</span>
+                  <span
+                    className="hover:bg-neutral-200 px-4 py-2 rounded"
+                    onClick={() => router.push("/auth/login")}
+                  >
+                    Login
+                  </span>
                 </div>
               )}
             </div>

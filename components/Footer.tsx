@@ -6,7 +6,7 @@ const Footer = () => {
     <div className="px-6 py-4 laptop:px-20 laptop:py-10 bg-neutral-900 flex flex-col">
       <div className="grid grid-cols-2 laptop:grid-cols-4 text-neutral-200 gap-10 laptop:gap-20 mx-auto">
         <div className="flex flex-col gap-3">
-          <h1 className="text-xl tablet:text-3xl font-semibold">Exclusive</h1>
+          <h1 className="text-xl tablet:text-3xl font-semibold">Vortexis</h1>
           <h1 className="text-sm tablet:text-base">Subscribe</h1>
           <h1 className="text-sm tablet:text-base">
             Get 10% off your first order
@@ -28,7 +28,7 @@ const Footer = () => {
               <br />
               DH 1515, Bangladesh
             </li>
-            <li>exclusive@gmail.com</li>
+            <li>vortexis@gmail.com</li>
             <li>+99015-88888-9999</li>
           </ul>
         </div>
