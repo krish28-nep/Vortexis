@@ -1,4 +1,5 @@
 import { axiosInstance } from "../axiosinstance";
+import { OrderStatus } from "@/types/order";
 
 export type AdminDashboardResponse = {
   totalUsers: number;
@@ -8,10 +9,17 @@ export type AdminDashboardResponse = {
   recentOrders: Array<{
     id: number;
     totalAmount: number;
-    status: string;
+    status: OrderStatus;
     createdAt: string;
-    user: { name: string; email?: string | null; phoneNumber?: string | null };
-    payment: { paymentMethod: string; paymentStatus: string } | null;
+    user?: {
+      name?: string | null;
+      email?: string | null;
+      phoneNumber?: string | null;
+    };
+    payment?: {
+      paymentMethod?: string | null;
+      paymentStatus?: string | null;
+    } | null;
   }>;
 };
 

@@ -105,11 +105,14 @@ const CheckoutPage = () => {
       const fallbackMessage = "Failed to initiate Khalti payment";
 
       if (axios.isAxiosError(error)) {
-        const serverError = (error.response?.data as any)?.error;
-        const serverMessage = (error.response?.data as any)?.message;
+        const responseData = error.response?.data as
+          | { error?: unknown; message?: unknown }
+          | undefined;
+        const serverError = responseData?.error;
+        const serverMessage = responseData?.message;
         const message =
           typeof serverError === "string"
-            ? `${serverMessage ?? fallbackMessage}: ${serverError}`
+            ? `${typeof serverMessage === "string" ? serverMessage : fallbackMessage}: ${serverError}`
             : typeof serverMessage === "string"
               ? serverMessage
               : fallbackMessage;

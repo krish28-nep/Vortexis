@@ -2,6 +2,7 @@
 
 import FeatureCard from "@/components/FeatureCard";
 import NewArrivalCart from "@/components/NewArrivalCart";
+import RecommendedProductRail from "@/components/RecommendedProductRail";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import dynamic from "next/dynamic";
@@ -73,6 +74,7 @@ const HomePage = () => {
         subtitle="Best Selling Products"
         dbTimeString={dbTimeString}
       />
+      <RecommendedProductRail />
       <NewArrivalCart />
       <FeatureCard />
     </div>

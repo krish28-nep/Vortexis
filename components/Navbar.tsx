@@ -11,6 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 import { axiosInstance } from "@/lib/axiosinstance";
 import { useAuth } from "@/hooks/useAuth";
 import { fetchProductSuggestions, ProductSuggestion } from "@/lib/api/product";
+import { fetchCartItems } from "@/lib/api/cart";
 import Link from "next/link";
 // import Image from "next/image"; // Uncomment if using <Image />
 
@@ -89,6 +90,16 @@ const Navbar = () => {
     enabled: searchOpen && searchQuery.length >= 2,
     staleTime: 10_000,
   });
+
+  const { data: cartItems = [] } = useQuery({
+    queryKey: ["cartItems"],
+    queryFn: fetchCartItems,
+    enabled: Boolean(user?.id),
+  });
+
+  const cartCount = user
+    ? cartItems.reduce((total, item) => total + item.quantity, 0)
+    : 0;
 
   return (
     <div className="mx-auto w-[1580px] flex gap-6 text-lg justify-between">
@@ -187,11 +198,18 @@ const Navbar = () => {
             className="cursor-pointer"
             size={22}
           />
-          <ShoppingCartIcon
-            size={22}
+          <button
+            type="button"
             onClick={() => router.push("/cart")}
-            className="cursor-pointer"
-          />
+            className="relative cursor-pointer"
+          >
+            <ShoppingCartIcon size={22} />
+            {cartCount > 0 && (
+              <span className="absolute -right-2 -top-2 min-w-5 rounded-full bg-red-500 px-1 text-center text-xs font-semibold text-white">
+                {cartCount}
+              </span>
+            )}
+          </button>
         </div>
 
         <div

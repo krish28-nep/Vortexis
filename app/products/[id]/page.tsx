@@ -19,6 +19,7 @@ import { useParams } from "next/navigation";
 import React, { useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { formatNrs } from "@/lib/utils";
+import Spinner from "@/components/Spinner";
 
 const ProductDetailPage = () => {
   const { id: productId } = useParams();
@@ -129,9 +130,9 @@ const ProductDetailPage = () => {
     },
   });
 
-  if (!product) {
-    return <p>No product Found</p>;
-  }
+  if (productLoading) return <Spinner />;
+  if (productError) return <p>Failed to load product.</p>;
+  if (!product) return <p>No product Found</p>;
 
   const handleToggleWishlist = () => {
     if (!user) {

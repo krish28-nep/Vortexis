@@ -1,5 +1,4 @@
-"use client"
-import axios from "axios";
+"use client";
 
 import React, { useState } from "react";
 import { FieldValues, useForm } from "react-hook-form";
@@ -14,28 +13,24 @@ const Loginpage = () => {
   const router = useRouter();
   const {
     register,
-    reset,
-    setError,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
   } = useForm({ mode: `onChange` });
 
   const dispatch = useDispatch();
 
   const onSubmit = async (data: FieldValues) => {
     try {
-      const response = await axiosInstance.post(
-        `/auth/login`, data
-      );
+      await axiosInstance.post(`/auth/login`, data);
       dispatch(
         showNotification({
           message: "Login Successfull",
-          type: "success"
-        })
-      )
+          type: "success",
+        }),
+      );
       router.push("/admin/dashboard");
-    } catch (errors) {
-      console.log(errors);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -72,7 +67,10 @@ const Loginpage = () => {
             {showPassword ? <FaEye /> : <FaEyeSlash />}
           </button>
         </div>
-        <button className="border px-2 py-1 bg-green-500 hover:bg-green-700 cursor-pointer rounded-lg mt-5">
+        <button
+          disabled={isSubmitting}
+          className="border px-2 py-1 bg-green-500 hover:bg-green-700 cursor-pointer rounded-lg mt-5 disabled:opacity-60"
+        >
           Sign In
         </button>
       </form>

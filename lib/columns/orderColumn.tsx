@@ -10,9 +10,25 @@ import { useDispatch } from "react-redux";
 import { ReusableDropdown } from "@/components/general/ReusableDropDown";
 import { showNotification } from "@/redux/NotificationSlice";
 import { updateOrder } from "@/lib/api/order";
-import { Order, OrderStatus } from "@/types/order";
+import { OrderStatus } from "@/types/order";
 
-const OrderStatusCell = ({ row }: { row: Row<Order> }) => {
+type OrderRow = {
+  id: number;
+  status: OrderStatus;
+  totalAmount: number;
+  createdAt?: Date | string;
+  user?: {
+    name?: string | null;
+    email?: string | null;
+    phoneNumber?: string | null;
+  };
+  payment?: {
+    paymentMethod?: string | null;
+    paymentStatus?: string | null;
+  } | null;
+};
+
+const OrderStatusCell = ({ row }: { row: Row<OrderRow> }) => {
   const queryClient = useQueryClient();
   const dispatch = useDispatch();
 
@@ -67,7 +83,7 @@ const OrderStatusCell = ({ row }: { row: Row<Order> }) => {
   );
 };
 
-const OrderActionCell = ({ row }: { row: Row<Order> }) => {
+const OrderActionCell = ({ row }: { row: Row<OrderRow> }) => {
   return (
     <div className="flex gap-4">
       <Link
@@ -81,7 +97,7 @@ const OrderActionCell = ({ row }: { row: Row<Order> }) => {
   );
 };
 
-export const orderColumn: ColumnDef<Order>[] = [
+export const orderColumn: ColumnDef<OrderRow>[] = [
   {
     accessorKey: "id",
     header: "Order ID",

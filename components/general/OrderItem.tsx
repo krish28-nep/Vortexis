@@ -1,5 +1,5 @@
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Button } from "./Button";
 import { useRouter } from "next/navigation";
 import { orderItem } from "@/types/order";
@@ -11,10 +11,6 @@ interface OrderItemProps {
 
 const OrderItem = ({ item }: OrderItemProps) => {
   const router = useRouter();
-
-  const handleInitiateReturn = () => {
-    router.push(`/returns?orderItemId=${item.id}`);
-  };
 
   const handleViewOrderDetails = () => {
     if (!item.orderId) return;

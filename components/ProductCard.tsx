@@ -2,7 +2,6 @@ import { Product } from "@/types/product";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React from "react";
-import { CiHeart } from "react-icons/ci";
 import { FaRegEye, FaStar } from "react-icons/fa";
 import { LuStar } from "react-icons/lu";
 import { formatNrs } from "@/lib/utils";

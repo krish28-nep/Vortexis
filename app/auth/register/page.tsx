@@ -7,14 +7,12 @@ import React, { useState } from "react";
 import { useForm, FieldValues } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import PhoneInput from "react-phone-number-input";
-import { FcGoogle } from "react-icons/fc";
 import { Button } from "@/components/general/Button";
 const Registerpage = () => {
   const [number, setNumber] = useState<string | undefined>();
 
   const router = useRouter();
-  const serverUrl =
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+  const serverUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
   const {
     register,
     setError,
@@ -24,10 +22,9 @@ const Registerpage = () => {
   const dispatch = useDispatch();
   const onSubmit = async (data: FieldValues) => {
     try {
-      const emailResponse = await axios.post(
-        `${serverUrl}/users/checkEmail`,
-        { email: data.email }
-      );
+      const emailResponse = await axios.post(`${serverUrl}/users/checkEmail`, {
+        email: data.email,
+      });
 
       if (emailResponse.data.userExists) {
         setError("email", { message: emailResponse.data.message });
@@ -42,7 +39,7 @@ const Registerpage = () => {
           showNotification({
             message: "Registeration succesfull",
             type: "success",
-          })
+          }),
         );
       }
       router.push("/auth/login");
@@ -103,7 +100,6 @@ const Registerpage = () => {
           />
         </div>
         <Button type="submit" text="Create Account" />
-
       </form>
       <h1 className="m-4 text-xl">Already Have An Account? Login</h1>
     </div>

@@ -3,9 +3,9 @@ import FilterSideBar from "@/components/general/FilterSideBar";
 import ProductGrid from "@/components/general/ProductGrid";
 import { ProductFilters } from "@/types/filter";
 import { useSearchParams } from "next/navigation";
-import React from "react";
+import React, { Suspense } from "react";
 
-const ProductPage = () => {
+const ProductPageContent = () => {
   const searchParams = useSearchParams();
 
   const initialFilters: ProductFilters = {
@@ -25,4 +25,10 @@ const ProductPage = () => {
   );
 };
 
-export default ProductPage;
+export default function ProductPage() {
+  return (
+    <Suspense fallback={<div className="p-6" />}>
+      <ProductPageContent />
+    </Suspense>
+  );
+}

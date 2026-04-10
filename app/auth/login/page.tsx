@@ -1,7 +1,6 @@
 "use client";
 import { axiosInstance } from "@/lib/axiosinstance";
 import { showNotification } from "@/redux/NotificationSlice";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FieldValues, useForm } from "react-hook-form";
 import { FaEye } from "react-icons/fa";
@@ -9,11 +8,9 @@ import { FaEyeLowVision } from "react-icons/fa6";
 import { useDispatch } from "react-redux";
 
 const LoginPage = () => {
-  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const {
     register,
-    reset,
     setError,
     handleSubmit,
     formState: { errors, isSubmitting },
@@ -29,15 +26,22 @@ const LoginPage = () => {
         showNotification({ message: "Login Successful", type: "success" }),
       );
       location.href = "/";
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as {
+        response?: { data?: { error?: unknown } };
+      };
+      const serverError = err.response?.data?.error;
+      const message =
+        typeof serverError === "string" ? serverError : "Login failed";
+
       dispatch(
         showNotification({
-          message: error.response?.data?.error || "Login failed",
+          message,
           type: "error",
         }),
       );
       setError("password", {
-        message: error.response?.data?.error || "Login failed",
+        message,
       });
     }
   };

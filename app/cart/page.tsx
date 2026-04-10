@@ -19,6 +19,16 @@ const Page = () => {
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
 
+  const {
+    data: cartItems,
+    isLoading: cartItemsLoading,
+    isError: cartItemsError,
+  } = useQuery<CartItem[]>({
+    queryKey: ["cartItems"],
+    queryFn: fetchCartItems,
+    enabled: !!user,
+  });
+
   if (!user) {
     return (
       <div className="flex min-h-[65vh] items-center justify-center bg-gray-50 dark:bg-neutral-900 px-4">
@@ -38,16 +48,6 @@ const Page = () => {
       </div>
     );
   }
-
-  const {
-    data: cartItems,
-    isLoading: cartItemsLoading,
-    isError: cartItemsError,
-  } = useQuery<CartItem[]>({
-    queryKey: ["cartItems"],
-    queryFn: fetchCartItems,
-    enabled: !!user, // only fetch if logged in
-  });
 
   if (cartItemsLoading) return <Spinner />;
 

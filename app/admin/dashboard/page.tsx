@@ -7,7 +7,10 @@ import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 
 import Spinner from "@/components/Spinner";
-import { fetchAdminDashboard } from "@/lib/api/dashboard";
+import {
+  AdminDashboardResponse,
+  fetchAdminDashboard,
+} from "@/lib/api/dashboard";
 import { Button } from "@/components/general/Button";
 import { DataTable } from "@/components/general/DataTable";
 import { orderColumn } from "@/lib/columns/orderColumn";
@@ -19,7 +22,7 @@ const DashboardPage = () => {
     data: dashboard,
     isLoading,
     isError,
-  } = useQuery({
+  } = useQuery<AdminDashboardResponse>({
     queryKey: ["admin-dashboard"],
     queryFn: fetchAdminDashboard,
   });
@@ -110,7 +113,7 @@ const DashboardPage = () => {
         <div className="mt-4">
           <DataTable
             columns={orderColumn}
-            data={(dashboard.recentOrders as any) ?? []}
+            data={dashboard.recentOrders ?? []}
           />
         </div>
       </div>

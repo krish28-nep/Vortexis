@@ -8,12 +8,12 @@ import { Order, OrderStatus } from "@/types/order";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { useState } from "react";
+import React, { Suspense, useState } from "react";
 import { useDispatch } from "react-redux";
 import { showNotification } from "@/redux/NotificationSlice";
 import { formatNrs } from "@/lib/utils";
 
-const OrderDetailTablePage = () => {
+const OrderDetailTablePageContent = () => {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
   const queryClient = useQueryClient();
@@ -243,4 +243,10 @@ const OrderDetailTablePage = () => {
   );
 };
 
-export default OrderDetailTablePage;
+export default function OrderDetailTablePage() {
+  return (
+    <Suspense fallback={<Spinner />}>
+      <OrderDetailTablePageContent />
+    </Suspense>
+  );
+}

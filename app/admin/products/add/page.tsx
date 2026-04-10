@@ -4,7 +4,7 @@ import { showNotification } from "@/redux/NotificationSlice";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Resolver, useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/general/Button";
@@ -36,7 +36,9 @@ const AddPage = () => {
     setValue,
     handleSubmit,
   } = useForm<ProductCreateInput>({
-    resolver: zodResolver(productCreateSchema),
+    resolver: zodResolver(
+      productCreateSchema,
+    ) as unknown as Resolver<ProductCreateInput>,
   });
 
   useEffect(() => {

@@ -11,14 +11,14 @@ const numberFromString = (schema: z.ZodNumber) =>
       return Number.isNaN(num) ? value : num;
     }
     return value;
-  }, schema);
+  }, schema) as z.ZodType<number>;
 
 const booleanFromString = (schema: z.ZodBoolean) =>
   z.preprocess((value) => {
     if (value === "true") return true;
     if (value === "false") return false;
     return value;
-  }, schema);
+  }, schema) as z.ZodType<boolean>;
 
 export const productCreateSchema = z.object({
   name: z.string().min(1, "Name is required"),

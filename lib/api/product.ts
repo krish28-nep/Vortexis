@@ -4,6 +4,7 @@ import {
 } from "@/schema/product.schema";
 import { axiosInstance } from "../axiosinstance";
 import { ProductFilters } from "@/types/filter";
+import { Product } from "@/types/product";
 
 export type ProductSuggestion = {
   id: number;
@@ -11,8 +12,14 @@ export type ProductSuggestion = {
   imageUrl?: string;
 };
 
+type ProductListItem = {
+  id: number;
+  name: string;
+  imageUrls?: string[];
+};
+
 export const fetchProducts = async (filters?: ProductFilters) => {
-  const params: Record<string, any> = {};
+  const params: Record<string, string | number | boolean> = {};
 
   if (filters?.search) params.search = filters.search;
 
@@ -36,11 +43,14 @@ export const fetchProductSuggestions = async (
   const trimmed = search.trim();
   if (!trimmed) return [];
 
-  const products = await fetchProducts({ search: trimmed });
-  return (products ?? []).slice(0, limit).map((p: any) => ({
-    id: p.id,
-    name: p.name,
-    imageUrl: p.imageUrls?.[0],
+  const products = (await fetchProducts({ search: trimmed })) as
+    | ProductListItem[]
+    | undefined;
+
+  return (products ?? []).slice(0, limit).map((product) => ({
+    id: product.id,
+    name: product.name,
+    imageUrl: product.imageUrls?.[0],
   }));
 };
 
@@ -68,4 +78,11 @@ export const deleteProduct = async (id: number) => {
 export const fetchProduct = async (id: number) => {
   const { data } = await axiosInstance.get(`/products/${id}`);
   return data.product;
+};
+
+export const fetchRecommendedProducts = async (limit = 8): Promise<Product[]> => {
+  const { data } = await axiosInstance.get("/products/recommended/me", {
+    params: { limit },
+  });
+  return data.products;
 };

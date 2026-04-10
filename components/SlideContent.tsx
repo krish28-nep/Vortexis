@@ -23,6 +23,8 @@ const SlideButtons = memo(({ option, onChange }: SlideButtonsProps) => {
   );
 });
 
+SlideButtons.displayName = "SlideButtons";
+
 const SlideContent = () => {
   const [option, setOption] = useState(1);
   const [slideClass, setSlideClass] = useState("slide-in");
