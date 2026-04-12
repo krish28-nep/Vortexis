@@ -14,6 +14,7 @@ import {
 import { showNotification } from "@/redux/NotificationSlice";
 import { Product } from "@/types/product";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 import { Heart, Loader2, Minus, Plus, ShoppingCart } from "lucide-react";
 import { useParams } from "next/navigation";
 import React, { useRef, useState } from "react";
@@ -55,6 +56,16 @@ const ProductDetailPage = () => {
     }
   };
   const handleAddToCart = () => {
+    if (!user) {
+      dispatch(
+        showNotification({
+          message: "Please login first",
+          type: "error",
+        }),
+      );
+      return;
+    }
+
     addToCartMutation.mutate({ productId: Number(productId), quantity });
   };
 
@@ -120,10 +131,17 @@ const ProductDetailPage = () => {
       );
     },
 
-    onError: () => {
+    onError: (error) => {
+      const errorMessage =
+        error instanceof AxiosError
+          ? (error.response?.data?.message ??
+            error.response?.data?.error ??
+            "Failed to add Item to Cart")
+          : "Failed to add Item to Cart";
+
       dispatch(
         showNotification({
-          message: "Failed to add Item to Cart",
+          message: errorMessage,
           type: "error",
         }),
       );
@@ -171,12 +189,19 @@ const ProductDetailPage = () => {
           </span>
           <p className="text-gray-600 mt-2">{product.description}</p>
           <p className="mt-4 text-xl font-bold">
-            {formatNrs(
-              product.price - (product.price * product.discountPercent) / 100,
+            {product.discountPercent > 0 ? (
+              <>
+                {formatNrs(
+                  product.price -
+                    (product.price * product.discountPercent) / 100,
+                )}
+                <span className="line-through text-gray-400 ml-2 text-base">
+                  {formatNrs(product.price)}
+                </span>
+              </>
+            ) : (
+              formatNrs(product.price)
             )}
-            <span className="line-through text-gray-400 ml-2 text-base">
-              {formatNrs(product.price)}
-            </span>
           </p>
           <p className="mt-2 text-sm text-yellow-600">
             ⭐ {product.averageRating} / 5

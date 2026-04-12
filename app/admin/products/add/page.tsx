@@ -20,6 +20,7 @@ import { ReusableDropdown } from "@/components/general/ReusableDropDown";
 import { Plus, Upload, X } from "lucide-react";
 import Image from "next/image";
 import { uploadImages } from "@/lib/api/upload";
+import { isAxiosError } from "axios";
 
 const AddPage = () => {
   const [isFlashSale, setIsFlashSale] = useState(false);
@@ -31,14 +32,21 @@ const AddPage = () => {
 
   const {
     register,
-    formState: { errors },
+    clearErrors,
+    setError,
+    formState: { errors, isSubmitting },
     reset,
     setValue,
     handleSubmit,
   } = useForm<ProductCreateInput>({
+    mode: "onChange",
     resolver: zodResolver(
       productCreateSchema,
     ) as unknown as Resolver<ProductCreateInput>,
+    defaultValues: {
+      isFlashSale: false,
+      discountPercent: undefined,
+    },
   });
 
   useEffect(() => {
@@ -59,6 +67,10 @@ const AddPage = () => {
     const updatedPreviews = previews.filter((_, i) => i !== indexToRemove);
     setImages(updatedImages);
     setPreviews(updatedPreviews);
+
+    if (updatedPreviews.length > 0) {
+      clearErrors("imageUrls");
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,6 +80,10 @@ const AddPage = () => {
 
     const newPreviews = newFiles.map((file) => URL.createObjectURL(file));
     setPreviews((prev) => [...prev, ...newPreviews]);
+
+    if (newFiles.length > 0) {
+      clearErrors("imageUrls");
+    }
   };
 
   const { mutate: addMutation } = useMutation({
@@ -85,10 +101,15 @@ const AddPage = () => {
       );
       router.push("/admin/products");
     },
-    onError: () => {
+    onError: (error: unknown) => {
+      const message = isAxiosError(error)
+        ? error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Error adding product"
+        : "Error adding product";
       dispatch(
         showNotification({
-          message: "Error adding product",
+          message,
           type: "error",
         }),
       );
@@ -97,6 +118,20 @@ const AddPage = () => {
 
   const onSubmit = async (data: ProductCreateInput) => {
     try {
+      if (images.length === 0) {
+        setError("imageUrls", {
+          type: "manual",
+          message: "At least one image is required",
+        });
+        dispatch(
+          showNotification({
+            message: "Please add at least one product image.",
+            type: "error",
+          }),
+        );
+        return;
+      }
+
       const imageUrls = await uploadImages(images);
 
       addMutation({
@@ -105,10 +140,14 @@ const AddPage = () => {
         isFlashSale,
       });
     } catch (e) {
-      console.error(e);
+      const message = isAxiosError(e)
+        ? e.response?.data?.message ||
+          e.response?.data?.error ||
+          "Error uploading images"
+        : "Error uploading images";
       dispatch(
         showNotification({
-          message: "Error uploading images",
+          message,
           type: "error",
         }),
       );
@@ -176,7 +215,9 @@ const AddPage = () => {
           <div className="flex flex-col gap-2 flex-1">
             <label>Discount Percent(%)</label>
             <input
-              {...register("discountPercent", { valueAsNumber: true })}
+              {...register("discountPercent", {
+                setValueAs: (v) => (v === "" ? undefined : Number(v)),
+              })}
               type="number"
               placeholder="0%"
               className="input-field"
@@ -303,7 +344,13 @@ const AddPage = () => {
         </div>
       </div>
 
-      <Button type="submit" className="self-start" text="Submit" />
+      <Button
+        type="submit"
+        className="self-start"
+        text="Submit"
+        disabled={isSubmitting}
+        isLoading={isSubmitting}
+      />
     </form>
   );
 };

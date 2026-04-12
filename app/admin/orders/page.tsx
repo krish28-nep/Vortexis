@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import Spinner from "@/components/Spinner";
 import { DataTable } from "@/components/general/DataTable";
 import { PaginationComponent } from "@/components/general/PaginationComponent";
+import { useDebounce } from "@/hooks/useDebounce";
 import { fetchOrders } from "@/lib/api/order";
 import { orderColumn } from "@/lib/columns/orderColumn";
 import { Order } from "@/types/order";
@@ -15,18 +16,20 @@ const PAGE_SIZE = 10;
 const AdminOrdersPage = () => {
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   useEffect(() => {
     setPage(1);
-  }, [searchTerm]);
+  }, [debouncedSearchTerm]);
 
   const {
     data: ordersData,
     isLoading: ordersLoading,
     isError: ordersError,
   } = useQuery<{ orders: Order[]; total: number }>({
-    queryKey: ["orders-admin", page, searchTerm],
-    queryFn: () => fetchOrders({ page, limit: PAGE_SIZE, search: searchTerm }),
+    queryKey: ["orders-admin", page, debouncedSearchTerm],
+    queryFn: () =>
+      fetchOrders({ page, limit: PAGE_SIZE, search: debouncedSearchTerm }),
   });
 
   const total = ordersData?.total || 0;

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProducts } from "@/lib/api/product";
 import { Button } from "@/components/general/Button";
@@ -10,33 +10,21 @@ import { DataTable } from "@/components/general/DataTable";
 import { productColumn } from "@/lib/columns/productColumn";
 import { Product } from "@/types/product";
 import Spinner from "@/components/Spinner";
+import { useDebounce } from "@/hooks/useDebounce";
 
 const ProductTablePage = () => {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   const {
     data: productsData,
     isLoading: productsLoading,
     isError: productsError,
   } = useQuery<Product[]>({
-    queryKey: ["products"],
-    queryFn: () => fetchProducts(),
+    queryKey: ["products", debouncedSearchTerm],
+    queryFn: () => fetchProducts({ search: debouncedSearchTerm }),
   });
-
-  const filteredProducts = useMemo(() => {
-    const q = searchTerm.trim().toLowerCase();
-    if (!q) return productsData ?? [];
-
-    return (productsData ?? []).filter((p) => {
-      const name = p.name?.toLowerCase() ?? "";
-      const description = p.description?.toLowerCase() ?? "";
-      const categoryName = p.category?.name?.toLowerCase() ?? "";
-      return (
-        name.includes(q) || description.includes(q) || categoryName.includes(q)
-      );
-    });
-  }, [productsData, searchTerm]);
 
   return (
     <div className="section-container space-y-8">
@@ -64,7 +52,7 @@ const ProductTablePage = () => {
         <p className="error-text">Failed to load products.</p>
       ) : (
         <div>
-          <DataTable columns={productColumn} data={filteredProducts} />
+          <DataTable columns={productColumn} data={productsData ?? []} />
         </div>
       )}
     </div>

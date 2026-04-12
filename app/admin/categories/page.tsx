@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/general/Button";
 import { Plus } from "lucide-react";
@@ -10,30 +10,21 @@ import Spinner from "@/components/Spinner";
 import { fetchCategories } from "@/lib/api/category";
 import { Category } from "@/types/category";
 import { categoryColumn } from "@/lib/columns/categoryColumn";
+import { useDebounce } from "@/hooks/useDebounce";
 
 const CategoryTablePage = () => {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   const {
     data: categoriesData,
     isLoading: categoriesLoading,
     isError: categoriesError,
   } = useQuery<Category[]>({
-    queryKey: ["categories"],
-    queryFn: () => fetchCategories(),
+    queryKey: ["categories", debouncedSearchTerm],
+    queryFn: () => fetchCategories(debouncedSearchTerm),
   });
-
-  const filteredCategories = useMemo(() => {
-    const q = searchTerm.trim().toLowerCase();
-    if (!q) return categoriesData ?? [];
-
-    return (categoriesData ?? []).filter((c) => {
-      const name = c.name?.toLowerCase() ?? "";
-      const description = c.description?.toLowerCase() ?? "";
-      return name.includes(q) || description.includes(q);
-    });
-  }, [categoriesData, searchTerm]);
 
   return (
     <div className="section-container space-y-8">
@@ -62,7 +53,7 @@ const CategoryTablePage = () => {
         <p className="error-text">Failed to load categories.</p>
       ) : (
         <div className="">
-          <DataTable columns={categoryColumn} data={filteredCategories} />
+          <DataTable columns={categoryColumn} data={categoriesData ?? []} />
         </div>
       )}
     </div>

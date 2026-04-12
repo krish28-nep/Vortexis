@@ -15,7 +15,7 @@ import AdminLayout from "@/components/layouts/AdminLayout";
 // };
 const geistSans = Geist({
   variable: "--font-geist-sans",
-  subsets: ["latin"]
+  subsets: ["latin"],
 });
 
 const geistMono = Geist_Mono({
@@ -29,7 +29,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
-  const hideLayoutRoute = pathname == "/admin";
+  const isAuthRoute = pathname.startsWith("/auth");
+  const hideLayoutRoute = pathname === "/admin" || isAuthRoute;
   const isAdminRoute = pathname.startsWith("/admin") && pathname != "/admin";
   return (
     <html lang="en">

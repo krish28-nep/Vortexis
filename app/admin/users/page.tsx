@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchUsers } from "@/lib/api/user";
 import { Button } from "@/components/general/Button";
@@ -10,31 +10,21 @@ import { DataTable } from "@/components/general/DataTable";
 import { userColumn } from "@/lib/columns/userColumn";
 import { User } from "@/types/user";
 import Spinner from "@/components/Spinner";
+import { useDebounce } from "@/hooks/useDebounce";
 
 const UserTablePage = () => {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   const {
     data: usersData,
     isLoading: usersLoading,
     isError: usersError,
   } = useQuery<User[]>({
-    queryKey: ["users"],
-    queryFn: () => fetchUsers(),
+    queryKey: ["users", debouncedSearchTerm],
+    queryFn: () => fetchUsers(debouncedSearchTerm),
   });
-
-  const filteredUsers = useMemo(() => {
-    const q = searchTerm.trim().toLowerCase();
-    if (!q) return usersData ?? [];
-
-    return (usersData ?? []).filter((u) => {
-      const name = u.name?.toLowerCase() ?? "";
-      const email = u.email?.toLowerCase() ?? "";
-      const role = u.role?.toLowerCase() ?? "";
-      return name.includes(q) || email.includes(q) || role.includes(q);
-    });
-  }, [usersData, searchTerm]);
 
   return (
     <div className="section-container space-y-8">
@@ -63,7 +53,7 @@ const UserTablePage = () => {
         <p className="error-text">Failed to load users.</p>
       ) : (
         <div className="">
-          <DataTable columns={userColumn} data={filteredUsers} />
+          <DataTable columns={userColumn} data={usersData ?? []} />
         </div>
       )}
     </div>

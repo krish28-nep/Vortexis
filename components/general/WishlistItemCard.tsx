@@ -4,22 +4,21 @@ import Image from "next/image";
 import React from "react";
 import { Trash } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { wishlistItem } from "@/types/wishlist";
-import { removeItemFromWishlist } from "@/lib/api/wishlist";
+import { removeItemFromWishlist, type WishlistItem } from "@/lib/api/wishlist";
 import { formatNrs } from "@/lib/utils";
 
 type WishlistItemCardProps = {
-  item: wishlistItem;
+  item: WishlistItem;
 };
 
 const WishlistItemCard: React.FC<WishlistItemCardProps> = ({ item }) => {
   const queryClient = useQueryClient();
 
+  const basePrice = Number(item.product.price);
   const discountedPrice =
     item.product.discountPercent > 0
-      ? item.product.price -
-        (item.product.price * item.product.discountPercent) / 100
-      : item.product.price;
+      ? basePrice * (1 - item.product.discountPercent / 100)
+      : basePrice;
 
   const removeMutation = useMutation({
     mutationFn: removeItemFromWishlist,

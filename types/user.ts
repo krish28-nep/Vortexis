@@ -1,12 +1,13 @@
 export type User = {
-    id: number;
-    name: string;
-    email: string;
-    avatarUrl: string
-    role: string;
+  id: number;
+  name: string;
+  email: string;
+  avatarUrl?: string | null;
+  phoneNumber?: string | null;
+  role: string;
 };
 
 export enum RoleEnum {
-    Admin = "Admin",
-    Customer = "Customer"
+  Admin = "Admin",
+  Customer = "Customer",
 }

@@ -20,6 +20,7 @@ import { ReusableDropdown } from "@/components/general/ReusableDropDown";
 import { Plus, Upload, X } from "lucide-react";
 import Image from "next/image";
 import { uploadImages } from "@/lib/api/upload";
+import { isAxiosError } from "axios";
 
 const UpdatePage = () => {
   const { id: productId } = useParams();
@@ -32,15 +33,22 @@ const UpdatePage = () => {
 
   const {
     register,
-    formState: { errors },
+    setError,
+    clearErrors,
+    formState: { errors, isSubmitting },
     reset,
     setValue,
     getValues,
     handleSubmit,
   } = useForm<productUpdateInput>({
+    mode: "onChange",
     resolver: zodResolver(
       productUpdateSchema,
     ) as unknown as Resolver<productUpdateInput>,
+    defaultValues: {
+      isFlashSale: false,
+      discountPercent: undefined,
+    },
   });
 
   const {
@@ -65,9 +73,12 @@ const UpdatePage = () => {
     if (productData) {
       reset({
         name: productData.name,
-        description: productData.description,
+        description: productData.description ?? "",
         price: productData.price,
-        discountPercent: productData.discountPercent,
+        discountPercent:
+          productData.discountPercent && productData.discountPercent > 0
+            ? productData.discountPercent
+            : undefined,
         stock: productData.stock,
         categoryId: productData.categoryId,
       });
@@ -78,7 +89,11 @@ const UpdatePage = () => {
 
   const handleRemoveImage = (indexToRemove: number) => {
     setImages((prev) => prev.filter((_, i) => i !== indexToRemove));
-    setPreviews((prev) => prev.filter((_, i) => i !== indexToRemove));
+    setPreviews((prev) => {
+      const next = prev.filter((_, i) => i !== indexToRemove);
+      if (next.length > 0) clearErrors("imageUrls");
+      return next;
+    });
   };
 
   const getImageUrl = (url: string) => {
@@ -98,6 +113,10 @@ const UpdatePage = () => {
 
     const newPreviews = newFiles.map((file) => URL.createObjectURL(file));
     setPreviews((prev) => [...prev, ...newPreviews]);
+
+    if (newFiles.length > 0) {
+      clearErrors("imageUrls");
+    }
   };
 
   const { mutate: updateMutation } = useMutation({
@@ -112,10 +131,15 @@ const UpdatePage = () => {
       );
       router.push("/admin/products");
     },
-    onError: () => {
+    onError: (error: unknown) => {
+      const message = isAxiosError(error)
+        ? error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Error updating product"
+        : "Error updating product";
       dispatch(
         showNotification({
-          message: "Error updating product",
+          message,
           type: "error",
         }),
       );
@@ -134,6 +158,20 @@ const UpdatePage = () => {
         ...uploadedUrls, // add new uploads
       ];
 
+      if (finalImageUrls.length === 0) {
+        setError("imageUrls", {
+          type: "manual",
+          message: "At least one image is required",
+        });
+        dispatch(
+          showNotification({
+            message: "Please keep at least one product image.",
+            type: "error",
+          }),
+        );
+        return;
+      }
+
       updateMutation({
         id: Number(productId),
         dataToSend: {
@@ -143,10 +181,14 @@ const UpdatePage = () => {
         },
       });
     } catch (e) {
-      console.error(e);
+      const message = isAxiosError(e)
+        ? e.response?.data?.message ||
+          e.response?.data?.error ||
+          "Error uploading images"
+        : "Error uploading images";
       dispatch(
         showNotification({
-          message: "Error uploading images",
+          message,
           type: "error",
         }),
       );
@@ -351,7 +393,13 @@ const UpdatePage = () => {
         </div>
       </div>
 
-      <Button type="submit" className="self-start" text="Update" />
+      <Button
+        type="submit"
+        className="self-start"
+        text="Update"
+        disabled={isSubmitting}
+        isLoading={isSubmitting}
+      />
     </form>
   );
 };

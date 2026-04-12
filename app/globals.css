@@ -60,6 +60,9 @@
     .sm-text{
         @apply text-sm text-neutral-700
     }
+    .error-text {
+        @apply text-sm text-red-500
+    }
 }
 
 /* styles.css */

@@ -7,13 +7,15 @@ const EndUserLayout = ({
   children,
 }: Readonly<{ children: React.ReactNode }>) => {
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex min-h-screen flex-col">
       <Notification />
-      <header className="flex fixed z-50 w-full h-20 bg-white top-0">
+      <header className="flex fixed z-[100] w-full h-20 bg-white top-0">
         <Navbar />
       </header>
-      <div className="mx-auto w-[1580px] my-26">{children}</div>
-      <footer className="">
+      <main className="flex-1 pt-24">
+        <div className="mx-auto w-[1580px] px-4">{children}</div>
+      </main>
+      <footer className="mt-auto">
         <Footer />
       </footer>
     </div>

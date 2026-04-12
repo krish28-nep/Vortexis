@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import Cookies from "js-cookie";
+import React from "react";
 import {
   LayoutDashboard,
   Users,
@@ -12,15 +11,9 @@ import {
   Star,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { jwtDecode } from "jwt-decode";
-
-interface TokenPayload {
-  id: string;
-  name: string;
-}
+import { axiosInstance } from "@/lib/axiosinstance";
 
 const Sidebar: React.FC = () => {
-  const [user, setUser] = useState<TokenPayload | null>(null);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -32,25 +25,15 @@ const Sidebar: React.FC = () => {
     { id: "orders", label: "Order", icon: ShoppingCart },
   ];
 
-  useEffect(() => {
-    const token = Cookies.get("token");
-    if (token) {
-      try {
-        const decoded = jwtDecode<TokenPayload>(token);
-        setUser(decoded);
-      } catch (err) {
-        console.error(err);
-        setUser(null);
-      }
-    } else {
-      setUser(null);
+  const handleLogout = async () => {
+    try {
+      await axiosInstance.post("/users/logout", {}, { withCredentials: true });
+    } catch (error) {
+      console.error("Logout failed", error);
+    } finally {
+      router.push("/admin");
+      router.refresh();
     }
-  }, [pathname]);
-
-  const handleLogout = () => {
-    Cookies.remove("token");
-    setUser(null);
-    router.push("/");
   };
 
   return (
@@ -92,17 +75,15 @@ const Sidebar: React.FC = () => {
       </div>
 
       {/* Logout */}
-      {user && (
-        <div className="p-4 border-t border-slate-700">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-left text-red-500 hover:bg-primary-700 hover:text-red-400"
-          >
-            <LogOut className="w-5 h-5" />
-            <span className="font-medium">Logout</span>
-          </button>
-        </div>
-      )}
+      <div className="p-4 border-t border-slate-700">
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-left text-red-500 hover:bg-primary-700 hover:text-red-400"
+        >
+          <LogOut className="w-5 h-5" />
+          <span className="font-medium">Logout</span>
+        </button>
+      </div>
     </div>
   );
 };

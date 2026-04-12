@@ -7,9 +7,10 @@ import {
   ShoppingCartIcon,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { axiosInstance } from "@/lib/axiosinstance";
 import { useAuth } from "@/hooks/useAuth";
+import { useDebounce } from "@/hooks/useDebounce";
 import { fetchProductSuggestions, ProductSuggestion } from "@/lib/api/product";
 import { fetchCartItems } from "@/lib/api/cart";
 import Link from "next/link";
@@ -17,10 +18,12 @@ import Link from "next/link";
 
 const Navbar = () => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { user } = useAuth();
   const [modalOpen, setModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
+  const debouncedSearchTerm = useDebounce(searchTerm, 400);
   const pathname = usePathname();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
@@ -53,12 +56,18 @@ const Navbar = () => {
   }, []);
 
   const handleLogout = async () => {
+    setModalOpen(false);
     try {
       await axiosInstance.post("/users/logout", {}, { withCredentials: true });
-      setModalOpen(false);
-      router.push("/");
     } catch (error) {
       console.error("Logout failed", error);
+    } finally {
+      queryClient.removeQueries({ queryKey: ["users", "me"], exact: true });
+      queryClient.removeQueries({ queryKey: ["cartItems"], exact: false });
+      queryClient.removeQueries({ queryKey: ["wishlistItems"], exact: false });
+      queryClient.removeQueries({ queryKey: ["orders"], exact: false });
+      router.push("/");
+      router.refresh();
     }
   };
 
@@ -73,7 +82,7 @@ const Navbar = () => {
     setSearchOpen(false);
   };
 
-  const getImageUrl = (url?: string) => {
+  const getImageUrl = (url?: string | null) => {
     if (!url) return undefined;
     if (url.startsWith("/uploads")) {
       return `${process.env.NEXT_PUBLIC_STATIC_URL}${url}`;
@@ -81,7 +90,7 @@ const Navbar = () => {
     return url;
   };
 
-  const searchQuery = searchTerm.trim();
+  const searchQuery = debouncedSearchTerm.trim();
   const { data: searchResults = [], isFetching: searchFetching } = useQuery<
     ProductSuggestion[]
   >({
@@ -156,7 +165,7 @@ const Navbar = () => {
             />
 
             {searchOpen && searchQuery.length >= 2 && (
-              <div className="absolute z-50 mt-2 w-full text-neutral-800 bg-neutral-50 shadow-xl border border-neutral-300 rounded-lg overflow-hidden">
+              <div className="absolute z-[200] mt-2 w-full text-neutral-800 bg-neutral-50 shadow-xl border border-neutral-300 rounded-lg overflow-hidden">
                 {searchFetching ? (
                   <div className="px-4 py-2 text-sm">Loading...</div>
                 ) : searchResults.length ? (
@@ -214,11 +223,17 @@ const Navbar = () => {
 
         <div
           ref={dropdownRef}
-          onClick={() => setModalOpen(!modalOpen)}
+          onClick={() => {
+            setModalOpen(!modalOpen);
+          }}
           className="cursor-pointer w-6 h-6 relative"
         >
           {user ? (
-            <img src="/xboxLogo.png" className="rounded-full object-cover" />
+            <img
+              src={getImageUrl(user.avatarUrl) ?? "/xboxLogo.png"}
+              alt="Avatar"
+              className="block h-full w-full rounded-full object-cover"
+            />
           ) : (
             // Or use next/image if you prefer:
             // <Image src="/xboxLogo.png" alt="Avatar" width={28} height={28} className="rounded-full object-cover" />
@@ -226,10 +241,13 @@ const Navbar = () => {
           )}
 
           {modalOpen && (
-            <div className="absolute z-50 top-9 right-0 text-neutral-800 bg-neutral-50 shadow-xl border rounded-md py-2 flex items-center justify-center">
+            <div className="absolute z-[200] top-9 right-0 text-neutral-800 bg-neutral-50 shadow-xl border rounded-md py-2 flex items-center justify-center">
               {user ? (
                 <div className="flex flex-col min-w-[150px] items-center gap-1">
                   <div>Hi, {user.name}</div>
+                  <span onClick={() => router.push("/my-profile")}>
+                    My Profile
+                  </span>
                   <span onClick={() => router.push("/my-orders")}>
                     My Order
                   </span>

@@ -9,7 +9,7 @@ import { FaCheck } from "react-icons/fa";
 const Notification = () => {
   const dispatch = useDispatch();
   const { message, type, visible } = useSelector(
-    (state: RootState) => state.notification
+    (state: RootState) => state.notification,
   );
 
   useEffect(() => {
@@ -24,14 +24,16 @@ const Notification = () => {
 
   return (
     <div
-      className={`fixed z-50 bottom-4 right-4 flex items-center gap-2 w-80 px-4 py-2 rounded-lg font-semibold text-lg transition-transform duration-300 ${
-        visible ? "translate-y-0 opacity-100" : "translate-x-10 opacity-0"
+      className={`fixed z-[1000] top-4 right-4 flex items-center gap-2 w-80 px-4 py-2 rounded-lg font-semibold text-lg transition-transform duration-300 ${
+        visible
+          ? "translate-y-0 opacity-100 pointer-events-auto"
+          : "translate-x-10 opacity-0 pointer-events-none"
       } ${
         type === "success"
           ? "bg-green-400 text-neutral-100"
           : type === "error"
-          ? "bg-red-400 text-neutral-100"
-          : "bg-yellow-400 text-neutral-900"
+            ? "bg-red-400 text-neutral-100"
+            : "bg-yellow-400 text-neutral-900"
       }`}
     >
       {type === "error" ? (
