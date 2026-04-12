@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { MoveRight } from "lucide-react";
 import React, { useEffect, useState, memo } from "react";
 
@@ -114,10 +115,13 @@ const SlideContent = () => {
             className="text-lg tablet:text-5xl font-bold laptop:[line-height:4rem]"
             dangerouslySetInnerHTML={{ __html: heroToRender.offer || "" }}
           />
-          <button className="cursor-pointer tablet:text-xl flex items-center gap-2">
+          <Link
+            href="/products"
+            className="cursor-pointer tablet:text-xl flex items-center gap-2"
+          >
             <span className="border-b-2 py-1">Shop now</span>
             <MoveRight />
-          </button>
+          </Link>
         </div>
         <img
           key={heroToRender.hero_endFrame}

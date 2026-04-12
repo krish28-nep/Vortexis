@@ -215,7 +215,11 @@ const CheckoutPage = () => {
           product: item.product,
         };
       }),
-      user,
+      {
+        name: user.name,
+        email: user.email,
+        phoneNumber: user.phoneNumber ?? undefined,
+      },
     );
 
     khaltiMutation.mutate(khaltiPayload);

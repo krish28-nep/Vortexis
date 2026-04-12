@@ -40,11 +40,6 @@ export default function RootLayout({
         <Provider store={store}>
           <ReactQueryProvider>
             <div>
-              {/* {hideLayoutRoute?{children}:isAdminRoute ? (
-                <AdminLayout>{children}</AdminLayout>
-              ) : (
-                <EndUserLayout>{children}</EndUserLayout>
-              )} */}
               {hideLayoutRoute ? (
                 <>{children}</>
               ) : isAdminRoute ? (

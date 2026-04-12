@@ -140,7 +140,7 @@ const OrderDetailTablePageContent = () => {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-neutral-200 dark:border-neutral-700">
-                  <th className="py-2 px-3 text-sm font-medium">ID</th>
+                  <th className="py-2 px-3 text-sm font-medium">S/N</th>
                   <th className="py-2 px-3 text-sm font-medium">Product</th>
                   <th className="py-2 px-3 text-sm font-medium">Quantity</th>
                   <th className="py-2 px-3 text-sm font-medium">Price</th>
@@ -148,12 +148,12 @@ const OrderDetailTablePageContent = () => {
                 </tr>
               </thead>
               <tbody>
-                {orderData.orderItems.map((item) => (
+                {orderData.orderItems.map((item, index) => (
                   <tr
                     key={item.id}
                     className="border-b border-neutral-100 dark:border-neutral-800"
                   >
-                    <td className="py-2 px-3 text-sm">{item.id}</td>
+                    <td className="py-2 px-3 text-sm">{index + 1}</td>
                     <td className="py-2 px-3 text-sm">{item.product.name}</td>
                     <td className="py-2 px-3 text-sm">{item.quantity}</td>
                     <td className="py-2 px-3 text-sm">
@@ -229,7 +229,7 @@ const OrderDetailTablePageContent = () => {
       </div>
 
       {/* Actions */}
-      <div className="flex flex-wrap justify-end gap-3">
+      <div className="flex flex-wrap pb-6 justify-end gap-3">
         {canCancel && (
           <Button
             onClick={() => setShowConfirmModal(true)}

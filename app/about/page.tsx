@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React from "react";
 import { IconType } from "react-icons";
 import { CiDollar, CiGift, CiShop } from "react-icons/ci";
@@ -77,7 +78,7 @@ const Aboutpage = () => {
           </p>
         </div>
         <div>
-          <img src="/SideImageAbout.png" />
+          <Image src="/SideImageAbout.jpg" alt="About Us" width={500} height={300} />
         </div>
       </div>
       <div className="flex gap-10 justify-center mb-8">

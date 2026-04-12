@@ -17,6 +17,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { uploadImages } from "@/lib/api/upload";
 import { isAxiosError } from "axios";
 import { Plus, Upload, X } from "lucide-react";
+import Image from "next/image";
 
 const MyProfilePage = () => {
   const router = useRouter();
@@ -190,8 +191,8 @@ const MyProfilePage = () => {
   }
 
   return (
-    <div className="mx-auto w-[1580px] px-4 py-10">
-      <div className="form-block max-w-xl flex flex-col gap-5">
+    <div className=" w-full mx-auto flex justify-center py-10">
+      <div className="form-block flex w-120 flex-col gap-5">
         <div className="space-y-1">
           <h1 className="heading">My Profile</h1>
           <p className="sm-text">Update your account information.</p>
