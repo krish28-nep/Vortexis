@@ -10,18 +10,20 @@ import { DataTable } from "@/components/general/DataTable";
 import { userColumn } from "@/lib/columns/userColumn";
 import { User } from "@/types/user";
 import Spinner from "@/components/Spinner";
+import { useDebounce } from "@/hooks/useDebounce";
 
 const UserTablePage = () => {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   const {
     data: usersData,
     isLoading: usersLoading,
     isError: usersError,
   } = useQuery<User[]>({
-    queryKey: ["users"],
-    queryFn: () => fetchUsers(),
+    queryKey: ["users", debouncedSearchTerm],
+    queryFn: () => fetchUsers(debouncedSearchTerm),
   });
 
   return (

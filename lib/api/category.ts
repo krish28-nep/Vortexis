@@ -1,8 +1,15 @@
 import { CategoryInput, UpdateCategoryInput } from "@/schema/category.schema";
 import { axiosInstance } from "../axiosinstance";
 
-export const fetchCategories = async () => {
-    const { data } = await axiosInstance.get('/categories');
+const resolveSearch = (value?: string | unknown) => {
+    return typeof value === "string" ? value.trim() : undefined;
+};
+
+export const fetchCategories = async (search?: string | unknown) => {
+    const trimmedSearch = resolveSearch(search);
+    const { data } = await axiosInstance.get('/categories', {
+        params: trimmedSearch ? { search: trimmedSearch } : undefined,
+    });
     return data.categories;
 };
 

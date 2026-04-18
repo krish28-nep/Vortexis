@@ -10,18 +10,20 @@ import { DataTable } from "@/components/general/DataTable";
 import { productColumn } from "@/lib/columns/productColumn";
 import { Product } from "@/types/product";
 import Spinner from "@/components/Spinner";
+import { useDebounce } from "@/hooks/useDebounce";
 
 const ProductTablePage = () => {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   const {
     data: productsData,
     isLoading: productsLoading,
     isError: productsError,
   } = useQuery<Product[]>({
-    queryKey: ["products"],
-    queryFn: () => fetchProducts(),
+    queryKey: ["products", debouncedSearchTerm],
+    queryFn: () => fetchProducts({ search: debouncedSearchTerm }),
   });
 
   return (

@@ -4,7 +4,7 @@ import { showNotification } from "@/redux/NotificationSlice";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Resolver, useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/general/Button";
@@ -20,6 +20,7 @@ import { ReusableDropdown } from "@/components/general/ReusableDropDown";
 import { Plus, Upload, X } from "lucide-react";
 import Image from "next/image";
 import { uploadImages } from "@/lib/api/upload";
+import { isAxiosError } from "axios";
 
 const UpdatePage = () => {
   const { id: productId } = useParams();
@@ -32,21 +33,38 @@ const UpdatePage = () => {
 
   const {
     register,
-    formState: { errors },
+    setError,
+    clearErrors,
+    formState: { errors, isSubmitting },
     reset,
     setValue,
     getValues,
     handleSubmit,
   } = useForm<productUpdateInput>({
-    resolver: zodResolver(productUpdateSchema),
+    mode: "onChange",
+    resolver: zodResolver(
+      productUpdateSchema,
+    ) as unknown as Resolver<productUpdateInput>,
+    defaultValues: {
+      isFlashSale: false,
+      discountPercent: undefined,
+    },
   });
 
-  const { data: productData, isLoading: productDataLoading, isError: productDataError } = useQuery({
+  const {
+    data: productData,
+    isLoading: productDataLoading,
+    isError: productDataError,
+  } = useQuery({
     queryKey: ["products", Number(productId)],
     queryFn: () => fetchProduct(Number(productId)),
   });
 
-  const { data: categoriesData = [], isLoading, isError } = useQuery<Category[]>({
+  const {
+    data: categoriesData = [],
+    isLoading,
+    isError,
+  } = useQuery<Category[]>({
     queryKey: ["categories"],
     queryFn: fetchCategories,
   });
@@ -55,9 +73,12 @@ const UpdatePage = () => {
     if (productData) {
       reset({
         name: productData.name,
-        description: productData.description,
+        description: productData.description ?? "",
         price: productData.price,
-        discountPercent: productData.discountPercent,
+        discountPercent:
+          productData.discountPercent && productData.discountPercent > 0
+            ? productData.discountPercent
+            : undefined,
         stock: productData.stock,
         categoryId: productData.categoryId,
       });
@@ -68,7 +89,11 @@ const UpdatePage = () => {
 
   const handleRemoveImage = (indexToRemove: number) => {
     setImages((prev) => prev.filter((_, i) => i !== indexToRemove));
-    setPreviews((prev) => prev.filter((_, i) => i !== indexToRemove));
+    setPreviews((prev) => {
+      const next = prev.filter((_, i) => i !== indexToRemove);
+      if (next.length > 0) clearErrors("imageUrls");
+      return next;
+    });
   };
 
   const getImageUrl = (url: string) => {
@@ -78,10 +103,9 @@ const UpdatePage = () => {
     return url;
   };
 
-
   useEffect(() => {
-    setValue("isFlashSale", isFlashSale)
-  }, [setValue, isFlashSale])
+    setValue("isFlashSale", isFlashSale);
+  }, [setValue, isFlashSale]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newFiles = Array.from(e.target.files || []);
@@ -89,6 +113,10 @@ const UpdatePage = () => {
 
     const newPreviews = newFiles.map((file) => URL.createObjectURL(file));
     setPreviews((prev) => [...prev, ...newPreviews]);
+
+    if (newFiles.length > 0) {
+      clearErrors("imageUrls");
+    }
   };
 
   const { mutate: updateMutation } = useMutation({
@@ -99,16 +127,21 @@ const UpdatePage = () => {
         showNotification({
           message: "Product updated successfully",
           type: "success",
-        })
+        }),
       );
       router.push("/admin/products");
     },
-    onError: () => {
+    onError: (error: unknown) => {
+      const message = isAxiosError(error)
+        ? error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Error updating product"
+        : "Error updating product";
       dispatch(
         showNotification({
-          message: "Error updating product",
+          message,
           type: "error",
-        })
+        }),
       );
     },
   });
@@ -121,9 +154,23 @@ const UpdatePage = () => {
       }
 
       const finalImageUrls = [
-        ...previews.filter((url) => url.startsWith("/uploads")), // from db 
+        ...previews.filter((url) => url.startsWith("/uploads")), // from db
         ...uploadedUrls, // add new uploads
       ];
+
+      if (finalImageUrls.length === 0) {
+        setError("imageUrls", {
+          type: "manual",
+          message: "At least one image is required",
+        });
+        dispatch(
+          showNotification({
+            message: "Please keep at least one product image.",
+            type: "error",
+          }),
+        );
+        return;
+      }
 
       updateMutation({
         id: Number(productId),
@@ -131,15 +178,19 @@ const UpdatePage = () => {
           ...data,
           imageUrls: finalImageUrls,
           isFlashSale,
-        }
+        },
       });
     } catch (e) {
-      console.error(e);
+      const message = isAxiosError(e)
+        ? e.response?.data?.message ||
+          e.response?.data?.error ||
+          "Error uploading images"
+        : "Error uploading images";
       dispatch(
         showNotification({
-          message: "Error uploading images",
+          message,
           type: "error",
-        })
+        }),
       );
     }
   };
@@ -169,7 +220,9 @@ const UpdatePage = () => {
             className="input-field"
             placeholder="Enter product name"
           />
-          {errors.name && <span className="error-text">{errors.name.message}</span>}
+          {errors.name && (
+            <span className="error-text">{errors.name.message}</span>
+          )}
         </div>
 
         {/* Description */}
@@ -181,13 +234,15 @@ const UpdatePage = () => {
             className="input-field"
             placeholder="Enter product description"
           />
-          {errors.description && <span className="error-text">{errors.description.message}</span>}
+          {errors.description && (
+            <span className="error-text">{errors.description.message}</span>
+          )}
         </div>
 
         {/* Price + Discount */}
         <div className="flex gap-4">
           <div className="flex flex-col gap-2 flex-1">
-            <label>Price($) *</label>
+            <label>Price (Nrs) *</label>
             <input
               {...register("price", {
                 setValueAs: (v) => (v === "" ? undefined : Number(v)),
@@ -196,12 +251,25 @@ const UpdatePage = () => {
               placeholder="0.00"
               className="input-field"
             />
-            {errors.price && <span className="error-text">{errors.price.message}</span>}
+            {errors.price && (
+              <span className="error-text">{errors.price.message}</span>
+            )}
           </div>
           <div className="flex flex-col gap-2 flex-1">
             <label>Discount Percent(%)</label>
-            <input {...register("discountPercent")} type="number" placeholder="0%" className="input-field" />
-            {errors.discountPercent && <span className="error-text">{errors.discountPercent.message}</span>}
+            <input
+              {...register("discountPercent", {
+                setValueAs: (v) => (v === "" ? undefined : Number(v)),
+              })}
+              type="number"
+              placeholder="0%"
+              className="input-field"
+            />
+            {errors.discountPercent && (
+              <span className="error-text">
+                {errors.discountPercent.message}
+              </span>
+            )}
           </div>
         </div>
 
@@ -209,20 +277,35 @@ const UpdatePage = () => {
         <div className="flex gap-4">
           <div className="flex flex-col gap-2 flex-1">
             <label>Stock Quantity *</label>
-            <input {...register("stock")} type="number" placeholder="0" className="input-field" />
-            {errors.stock && <span className="error-text">{errors.stock.message}</span>}
+            <input
+              {...register("stock", {
+                setValueAs: (v) => (v === "" ? undefined : Number(v)),
+              })}
+              type="number"
+              placeholder="0"
+              className="input-field"
+            />
+            {errors.stock && (
+              <span className="error-text">{errors.stock.message}</span>
+            )}
           </div>
           <div className="flex flex-col gap-2 flex-1">
             <label>Category *</label>
             <ReusableDropdown
               items={categoriesData.map((c) => c.name)}
-              value={categoriesData.find((c) => c.id == getValues("categoryId"))?.name}
+              value={
+                categoriesData.find((c) => c.id == getValues("categoryId"))
+                  ?.name
+              }
               onSelect={(name) => {
                 const selected = categoriesData.find((c) => c.name === name);
-                if (selected) setValue("categoryId", selected.id, { shouldValidate: true });
+                if (selected)
+                  setValue("categoryId", selected.id, { shouldValidate: true });
               }}
             />
-            {errors.categoryId && <span className="error-text">{errors.categoryId.message}</span>}
+            {errors.categoryId && (
+              <span className="error-text">{errors.categoryId.message}</span>
+            )}
           </div>
         </div>
 
@@ -281,30 +364,42 @@ const UpdatePage = () => {
               />
             </label>
           )}
-          {errors.imageUrls && <span className="error-text">{errors.imageUrls.message}</span>}
+          {errors.imageUrls && (
+            <span className="error-text">{errors.imageUrls.message}</span>
+          )}
         </div>
 
         {/* Flash Sale Toggle */}
         <div className="flex justify-between items-center border rounded-lg px-2 py-1">
           <div>
             <label>Flash Sale</label>
-            <p className="text-sm text-neutral-500">Mark this product as flash sale item</p>
+            <p className="text-sm text-neutral-500">
+              Mark this product as flash sale item
+            </p>
           </div>
           <button
             type="button"
             onClick={() => setIsFlashSale((prev) => !prev)}
-            className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors ${isFlashSale ? "bg-green-500" : "bg-gray-300"
-              }`}
+            className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors ${
+              isFlashSale ? "bg-green-500" : "bg-gray-300"
+            }`}
           >
             <div
-              className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${isFlashSale ? "translate-x-6" : "translate-x-0"
-                }`}
+              className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
+                isFlashSale ? "translate-x-6" : "translate-x-0"
+              }`}
             />
           </button>
         </div>
       </div>
 
-      <Button type="submit" className="self-start" text="Update" />
+      <Button
+        type="submit"
+        className="self-start"
+        text="Update"
+        disabled={isSubmitting}
+        isLoading={isSubmitting}
+      />
     </form>
   );
 };

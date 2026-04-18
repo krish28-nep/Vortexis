@@ -2,11 +2,12 @@
 
 import FeatureCard from "@/components/FeatureCard";
 import NewArrivalCart from "@/components/NewArrivalCart";
+import RecommendedProductRail from "@/components/RecommendedProductRail";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 type Category = {
   id: number;
@@ -14,10 +15,13 @@ type Category = {
 };
 
 const HomePage = () => {
-  const dbTimeString = "2025-08-18 09:13:00 AM"; // from database
-  const [targetTime, setTargetTime] = useState(
-    new Date(dbTimeString).getTime()
-  );
+  // Flash-sale countdown end time (end of today). Replace with DB-driven time when available.
+  const flashSaleEnd = new Date();
+  flashSaleEnd.setHours(23, 59, 59, 999);
+  if (flashSaleEnd.getTime() <= Date.now()) {
+    flashSaleEnd.setDate(flashSaleEnd.getDate() + 1);
+  }
+  const dbTimeString = flashSaleEnd.toISOString();
 
   const ProductRail = dynamic(() => import("@/components/ProductRail"), {
     ssr: false,
@@ -28,21 +32,12 @@ const HomePage = () => {
   });
 
   useEffect(() => {
-    setTargetTime(new Date(dbTimeString).getTime());
-
-    const interval = setInterval(() => {
-      const timeLeft = targetTime - Date.now();
-      if (timeLeft <= 0) {
-        clearInterval(interval);
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [targetTime]);
+    // Countdown is handled inside ProductRail.
+  }, []);
 
   const fetchCategories = async () => {
     const { data } = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/categories`
+      `${process.env.NEXT_PUBLIC_API_URL}/categories`,
     );
     return data.categories;
   };
@@ -69,27 +64,17 @@ const HomePage = () => {
         </div>
         <SlideContent />
       </div>
-      {targetTime > Date.now() ? (
-        <ProductRail
-          title="Today's"
-          subtitle="Flash Sales"
-          dbTimeString={dbTimeString}
-        />
-      ) : (
-        <div className="space-y-2">
-          <h1 className="border-l-15 border-red-500 text-sm tablet:text-xl px-2 py-1">
-            {"Today's"}
-          </h1>
-          <p className="responsive-subtitle font-semibold">
-            Flash Sale has ended.
-          </p>
-        </div>
-      )}
+      <ProductRail
+        title="Today's"
+        subtitle="Flash Sales"
+        dbTimeString={dbTimeString}
+      />
       <ProductRail
         title="This Month"
         subtitle="Best Selling Products"
         dbTimeString={dbTimeString}
       />
+      <RecommendedProductRail />
       <NewArrivalCart />
       <FeatureCard />
     </div>

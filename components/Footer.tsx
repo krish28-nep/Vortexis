@@ -1,12 +1,18 @@
+"use client";
+
 import React from "react";
+import Link from "next/link";
 import { IoMdSend } from "react-icons/io";
+import { useAuth } from "@/hooks/useAuth";
 
 const Footer = () => {
+  const { user } = useAuth();
+
   return (
     <div className="px-6 py-4 laptop:px-20 laptop:py-10 bg-neutral-900 flex flex-col">
       <div className="grid grid-cols-2 laptop:grid-cols-4 text-neutral-200 gap-10 laptop:gap-20 mx-auto">
         <div className="flex flex-col gap-3">
-          <h1 className="text-xl tablet:text-3xl font-semibold">Exclusive</h1>
+          <h1 className="text-xl tablet:text-3xl font-semibold">Vortexis</h1>
           <h1 className="text-sm tablet:text-base">Subscribe</h1>
           <h1 className="text-sm tablet:text-base">
             Get 10% off your first order
@@ -24,36 +30,90 @@ const Footer = () => {
           <h1 className="text-lg tablet:text-2xl font-semibold">Support</h1>
           <ul className="space-y-2 text-sm tablet:text-base">
             <li>
-              111 Bijay sarani, Dhaka,
-              <br />
-              DH 1515, Bangladesh
+              <a
+                href="https://www.google.com/maps/search/?api=1&query=Bhaktapur%2C%20Nepal"
+                target="_blank"
+                rel="noreferrer"
+                className="hover:underline"
+              >
+                Bhaktapur,
+                <br />
+                Nepal
+              </a>
             </li>
-            <li>exclusive@gmail.com</li>
-            <li>+99015-88888-9999</li>
+            <li>
+              <a href="mailto:vortexis@gmail.com" className="hover:underline">
+                vortexis@gmail.com
+              </a>
+            </li>
+            <li>
+              <a href="tel:+990158888899999" className="hover:underline">
+                +99015-88888-9999
+              </a>
+            </li>
           </ul>
         </div>
         <div className="space-y-1">
           <h1 className="text-lg tablet:text-2xl font-semibold">Account</h1>
           <ul className="space-y-2 text-sm tablet:text-base">
-            <li>My Account</li>
-            <li>Login / Register</li>
-            <li>Cart</li>
-            <li>Wishlist</li>
-            <li>Shop</li>
+            {user ? (
+              <li>
+                <Link href="/my-profile" className="hover:underline">
+                  My Account
+                </Link>
+              </li>
+            ) : (
+              <li>
+                <Link href="/auth/login" className="hover:underline">
+                  Login / Register
+                </Link>
+              </li>
+            )}
+            <li>
+              <Link href="/cart" className="hover:underline">
+                Cart
+              </Link>
+            </li>
+            <li>
+              <Link href="/wishlists" className="hover:underline">
+                Wishlist
+              </Link>
+            </li>
+            <li>
+              <Link href="/products" className="hover:underline">
+                Shop
+              </Link>
+            </li>
           </ul>
         </div>
         <div className="space-y-1">
           <h1 className="text-lg tablet:text-2xl font-semibold">Quick Link</h1>
           <ul className="space-y-2 text-sm tablet:text-base">
-            <li>Privacy</li>
-            <li>Terms Of USe</li>
-            <li>FAQ</li>
-            <li>Contact</li>
+            <li>
+              <Link href="/privacy" className="hover:underline">
+                Privacy
+              </Link>
+            </li>
+            <li>
+              <Link href="/terms" className="hover:underline">
+                Terms Of Use
+              </Link>
+            </li>
+            <li>
+              <Link href="/faq" className="hover:underline">
+                FAQ
+              </Link>
+            </li>
+            <li>
+              <Link href="/contact" className="hover:underline">
+                Contact
+              </Link>
+            </li>
           </ul>
         </div>
       </div>
       <div className="text-neutral-600 mt-8 self-center">
-        Copyright Rimel 2025. All right reserved
+        Copyright 2025. All right reserved
       </div>
     </div>
   );
